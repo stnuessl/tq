@@ -19,97 +19,103 @@
  */
 
 #include <string>
+#include <unordered_map>
 #include <stdexcept>
 
 #include "query-builder.hpp"
 
-#define FILE_POSITION (std::string(__FILE__) + ":" + std::to_string(__LINE__))
+const unsigned int query_builder::_default_limit = 10;
+const unsigned int query_builder::_min_limit     = 1;
+const unsigned int query_builder::_max_limit     = 100;
 
-const unsigned int tq::query_builder::_default_limit = 10;
-const unsigned int tq::query_builder::_min_limit     = 1;
-const unsigned int tq::query_builder::_max_limit     = 100;
-
-static std::string type_to_string(tq::query_builder::type type)
-{
-    const static std::string str[] = {
-        "channels/",
-        "games/",
-        "streams/",
-        "search/channel",
-        "search/games",
-        "search/streams",
-    };
-    
-    return str[type];
-}
-
-tq::query_builder::query_builder()
+query_builder::query_builder(query_builder::type type)
     : _limit(_default_limit), 
-      _live(true)
+      _live(true),
+      _type(type)
 {
 }
 
-tq::query_builder::~query_builder()
+query_builder::~query_builder()
 {
 }
 
-tq::query_builder &tq::query_builder::set_type(tq::query_builder::type type)
+std::string query_builder::as_string(query_builder::type type) 
 {
-    _type = type;
+#define BASE_URL "https://api.twitch.tv/kraken/"
     
-    return *this;
+    switch (type) {
+    case TYPE_CHANNELS:
+        return std::string(BASE_URL "channels/");
+    case TYPE_FEATURED:
+        return std::string(BASE_URL "streams/featured");
+    case TYPE_SEARCH_CHANNELS:
+        return std::string(BASE_URL "search/channels");
+    case TYPE_SEARCH_GAMES:
+        return std::string(BASE_URL "search/games");
+    case TYPE_SEARCH_STREAMS:
+        return std::string(BASE_URL "search/streams");
+    case TYPE_STREAMS:
+        return std::string(BASE_URL "streams/");
+    case TYPE_TOP:
+        return std::string(BASE_URL "games/top");
+    }
 }
 
-tq::query_builder &tq::query_builder::set_query(const std::string& str)
+void query_builder::set_query(const std::string& str)
 {
-    _query = str;
-    
-    return *this;
+    _query  = str;
 }
 
-tq::query_builder &tq::query_builder::set_limit(unsigned int limit)
+void query_builder::set_limit(unsigned int limit)
 {
-    limit = std::min(limit, tq::query_builder::_max_limit);
-    limit = std::max(limit, tq::query_builder::_min_limit);
+    limit = std::min(limit, _max_limit);
+    limit = std::max(limit, _min_limit);
     
     _limit = limit;
-    
-    return *this;
 }
 
-tq::query_builder &tq::query_builder::set_live(bool live)
+void query_builder::set_live(bool live)
 {
     _live = live;
-    
-    return *this;
 }
 
-tq::query tq::query_builder::build() const
+query query_builder::build() const
 {
-    const static std::string base_url("https://api.twitch.tv/kraken/");
-    std::string uri = base_url + type_to_string(_type);
+    auto url = as_string(_type);    
+    auto limit = "limit=" + std::to_string(_limit);
+    auto live  = std::string("&live=") + ((_live) ? "true" : "false"); 
     
-    if (_type != GAMES && _query.empty())
-        throw std::runtime_error(FILE_POSITION + "No query specified!");
+    if (_type != TYPE_TOP && _type != TYPE_FEATURED && _query.empty())
+        throw std::runtime_error("No query string specified.");
     
     switch (_type) {
-    case CHANNELS:
-    case STREAMS:
-        uri += _query;
-        break;
-    case GAMES:
-        uri += "top?limit=" + std::to_string(_limit);
-        break;
-    case SEARCH_CHANNELS:
-    case SEARCH_STREAMS:
-        uri += "?q=" + _query + "&limit=" + std::to_string(_limit);
-        break;
-    case SEARCH_GAMES:
-        uri += "?q=" + _query + "&type=suggest" + "&live=";
-        uri += (_live) ? "true" : "false";
-    default:
-        throw std::runtime_error("Invalid query type");
+        case TYPE_CHANNELS:
+        case TYPE_STREAMS:
+            url += _query;
+
+            break;
+        case TYPE_FEATURED:
+        case TYPE_TOP:
+            url += "?";
+            url += limit;
+            
+            break;
+        case TYPE_SEARCH_CHANNELS:
+        case TYPE_SEARCH_STREAMS:
+            url += "?q=";
+            url += _query;
+            url += "&";
+            url += limit;
+            
+            break;
+        case TYPE_SEARCH_GAMES:
+            url += "?q=";
+            url += _query;
+            url += "type=suggest";
+            url += live;
+            
+            break;
     }
-    
-    return query(uri);
+
+    return query(url);
 }

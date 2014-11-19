@@ -26,7 +26,7 @@
 
 #include "query.hpp"
 
-bool tq::query::_libcurl_init = false;
+bool query::_libcurl_init = false;
 
 static size_t gather_response(char *p, 
                               size_t size, 
@@ -40,7 +40,7 @@ static size_t gather_response(char *p,
     return total;
 }
 
-tq::query::query(const std::string &url)
+query::query(const std::string &url)
 {
     if (!_libcurl_init) {
         auto err = curl_global_init(CURL_GLOBAL_SSL);
@@ -61,12 +61,12 @@ tq::query::query(const std::string &url)
     curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
 }
 
-tq::query::~query()
+query::~query()
 {
     curl_easy_cleanup(_curl);
 }
 
-std::string tq::query::get_response()
+std::string query::get_response()
 {
     _response.clear();
     

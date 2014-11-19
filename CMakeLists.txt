@@ -6,7 +6,7 @@ project(tq)
 # add_definitions(-D_GNU_SOURCE)
 add_definitions(-Wall)
 # add_definitions(-O2 -DNDEBUG)
-# add_definitions(-g3)
+add_definitions(-g3)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
@@ -29,6 +29,7 @@ set(SRC
 
 find_package(CURL REQUIRED)
 find_package(JSONCPP REQUIRED)
+find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
 
 # <XPREFIX>_FOUND          ... set to 1 if module(s) exist
@@ -43,6 +44,8 @@ find_package(JSONCPP REQUIRED)
 
 include_directories(${CURL_INCLUDE_DIRS})
 include_directories(${JSONCPP_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
+
 
 # link_directories(${CMAKE_LIBRARY_PATH})
 
@@ -50,5 +53,6 @@ add_executable(tq ${SRC})
 
 target_link_libraries(tq ${CURL_LIBRARIES})
 target_link_libraries(tq ${JSONCPP_LIBRARIES})
+target_link_libraries(tq ${Boost_LIBRARIES})
 
 install(PROGRAMS ${CMAKE_BINARY_DIR}/tq DESTINATION ${TARGET_INSTALL_DIR})

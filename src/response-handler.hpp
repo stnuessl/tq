@@ -25,19 +25,27 @@
 
 #include <json/json.h>
 
-namespace tq {
-    class response_handler {
-    public:
-        explicit response_handler();
-        ~response_handler();
-        
-        void streams_response(const std::string &response);
-        void channel_response(const std::string &response);
-        void game_response(const std::string &response);
-        void search_streams_response(const std::string &response);
-    private:
-        Json::Reader _reader;
-    };
-}
+#include "query-builder.hpp"
+
+class response_handler {
+public:
+    explicit response_handler(bool v, bool u);
+    ~response_handler();
+    
+    void handle_response(const std::string &str);
+private:
+    void handle_channels(const Json::Value &root);
+    void handle_featured(const Json::Value &root);
+    void handle_search_channels(const Json::Value &root);
+    void handle_search_games(const Json::Value &root);
+    void handle_search_streams(const Json::Value &root);
+    void handle_streams(const Json::Value &root);
+    void handle_top(const Json::Value &root);
+    
+    Json::Reader _reader;
+   
+    bool _v;
+    bool _u;
+};
 
 #endif /* _RESPONSE_HANDLER_HPP_ */

@@ -35,38 +35,38 @@
  * 
  */
 
-namespace tq {
-    class query_builder {
-    public:
-        enum type {
-            CHANNELS,
-            GAMES,
-            STREAMS,
-            SEARCH_CHANNELS,
-            SEARCH_GAMES,
-            SEARCH_STREAMS,
-        };
-        
-        explicit query_builder();
-        ~query_builder();
-        
-        tq::query_builder &set_type(tq::query_builder::type type);
-        tq::query_builder &set_query(const std::string &str);
-        tq::query_builder &set_limit(unsigned int limit);
-        tq::query_builder &set_live(bool live);
-        
-        tq::query build() const;
-    private:
-        static const unsigned int _default_limit;
-        static const unsigned int _min_limit;
-        static const unsigned int _max_limit;
-        
-        unsigned int _limit;
-        bool _live;
-        
-        enum type _type;
-        std::string _query;
+class query_builder {
+public:
+    enum type {
+        TYPE_CHANNELS,
+        TYPE_FEATURED,
+        TYPE_SEARCH_CHANNELS,
+        TYPE_SEARCH_GAMES,
+        TYPE_SEARCH_STREAMS,
+        TYPE_STREAMS,
+        TYPE_TOP,
     };
-}
+    
+    explicit query_builder(query_builder::type type);
+    ~query_builder();
+    
+    static std::string as_string(query_builder::type type);
+    
+    void set_query(const std::string &str);
+    void set_limit(unsigned int limit);
+    void set_live(bool live);
+    
+    query build() const;
+private:
+    static const unsigned int _default_limit;
+    static const unsigned int _min_limit;
+    static const unsigned int _max_limit;
+        
+    unsigned int _limit;
+    bool _live;
+    
+    enum type _type;
+    std::string _query;
+};
 
 #endif /* _QUERY_BUILDER_HPP_ */

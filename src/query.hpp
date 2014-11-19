@@ -25,21 +25,17 @@
 
 #include <curl/curl.h>
 
-namespace tq {
+class query {
+public:
+    explicit query(const std::string &url);
+    ~query();
     
-    class query {
-    public:
-        explicit query(const std::string &url);
-        ~query();
-        
-        std::string get_response();
-        
-    private:
-        static bool _libcurl_init;
-        
-        std::string _response;
-        CURL *_curl;
-    };
-}
+    std::string get_response();
+private:
+    static bool _libcurl_init;
+    
+    std::string _response;
+    CURL *_curl;
+};
 
 #endif /* _QUERY_HPP_ */
