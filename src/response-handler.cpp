@@ -130,12 +130,18 @@ void response_handler::handle_top(const Json::Value &root)
 
 void response_handler::handle_channels(const Json::Value &root)
 {
+    auto url    = root["url"].asString();
+    
+    if (_u) {
+        std::cout << "  " << url << std::endl;
+        return;
+    }
+    
     auto name   = root["display_name"].asString();
     auto id     = root["_id"].asInt();
     auto game   = root["game"].asString();
     auto delay  = root["delay"].asInt();
     auto mature = (root["mature"].asBool()) ? "yes" : "no";
-    auto url    = root["url"].asString();
     
     std::cout << "  Name   : " << name << "\n"
               << "  Id     : " << id << "\n"
@@ -184,7 +190,24 @@ void response_handler::handle_featured(const Json::Value& root)
 
 void response_handler::handle_search_channels(const Json::Value& root)
 {
-
+    auto channels = root["channels"];
+    
+    for (auto &x : channels) {
+        auto url  = x["url"].asString();
+        auto game = x["game"].asString();
+        auto name = x["name"].asString();
+        
+        if (name.length() > _max_name_str_len)
+            name.resize(_max_name_str_len);
+        
+        if (game.length() > _max_game_str_len)
+            name.resize(_max_game_str_len);
+        
+        std::cout << "  " << std::setw(_max_name_str_len) << std::left << name
+                  << "  " << std::setw(_max_game_str_len) << std::left << game
+                  << "  " << url
+                  << std::endl;
+    }
 }
 
 void response_handler::handle_search_games(const Json::Value& root)
@@ -217,7 +240,7 @@ void response_handler::handle_search_streams(const Json::Value& root)
     auto v   = streams[0]["viewers"].asInt();
     auto len = integer_length_as_string(v); 
     
-    for (const auto &stream : streams) {
+    for (auto &stream : streams) {
         auto viewers = stream["viewers"].asInt();
         auto chan = stream["channel"];
         auto game = stream["game"].asString();
@@ -231,12 +254,11 @@ void response_handler::handle_search_streams(const Json::Value& root)
         if (game.length() > _max_game_str_len)
             game.resize(_max_game_str_len);
         
-        std::cout << "  " << std::setw(len) << std::left << viewers 
+        std::cout << "  " << std::setw(len) << std::right << viewers 
                   << "  " << std::setw(_max_name_str_len) << std::left << name  
                   << "  " << std::setw(_max_game_str_len) << std::left << game
                   << "  " << url 
                   << std::endl;
-    
     }
 }
 
@@ -253,18 +275,23 @@ void response_handler::handle_streams(const Json::Value& root)
     }
     
     auto channel = stream["channel"];
+    auto viewers = stream["viewers"].asInt();
     
     auto name    = channel["name"].asString();
     auto id      = channel["_id"].asInt();
-    auto viewers = channel["viewers"].asInt();
     auto game    = channel["game"].asString();
     auto delay   = channel["delay"].asInt();
     auto url     = channel["url"].asString();
+    auto status  = channel["status"].asString();
+    auto lang    = channel["broadcaster_language"].asString();
     
-    std::cout << "  Name    : " << name << "\n"
-              << "  Id      : " << id << "\n"
-              << "  Viewers : " << viewers << "\n"
-              << "  Game    : " << game << "\n"
-              << "  Delay   : " << delay << "\n"
-              << "  URL     : " << url << std::endl;
+    std::cout << "  Name     : " << name << "\n"
+              << "  Status   : " << status << "\n"
+              << "  Id       : " << id << "\n"
+              << "  Viewers  : " << viewers << "\n"
+              << "  Game     : " << game << "\n"
+              << "  Delay    : " << delay << "\n"
+              << "  URL      : " << url << "\n"
+              << "  Language : " << lang
+              << std::endl;
 }
