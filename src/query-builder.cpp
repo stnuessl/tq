@@ -111,7 +111,7 @@ query query_builder::build() const
         case TYPE_SEARCH_GAMES:
             url += "?q=";
             url += _query;
-            url += "type=suggest";
+            url += "&type=suggest";
             url += live;
             
             break;

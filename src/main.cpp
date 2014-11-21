@@ -31,32 +31,6 @@
 #include "query-builder.hpp"
 #include "response-handler.hpp"
 
-/*
- * Commandline Usage:
- * 
- * tq -G
- * tq -S
- * tq -C
- * tq -Gs <name>
- * tq -Ss <name>
- * tq -Cs <name> 
- * tq -v --verbose
- * tq -u --url
- * tq -n <num>
- * 
- * 
- * tq -g --games
- * tq -s --streams <game>
- * tq --channel-info <channel>
- * tq --stream-info <stream> 
- * tq --search-game <name>
- * 
- * additional options:
- * -v --verbose
- * -u  --url
- * 
- * tq -q <str>  query 
- */
 
 #define DESC_CHANNELS "Retrieve information about a channel."
 #define DESC_DEBUG    "Run in debug mode"
@@ -167,30 +141,10 @@ int main(int argc, char *argv[])
 
         auto r = builder.build().get_response();
         
-        response_handler(verbose, url).handle_response(r);
+        response_handler(verbose, url).handle_response(r, type_vec[0]);
     } catch (std::exception &e) {
         
     }
-    
 
-/*   
-    
-    if (argc > 1) {
-        tq::query_builder builder;
-        
-        builder.set_type(tq::query_builder::SEARCH_STREAMS).set_query(argv[1]);
-        auto response = builder.build().get_response();
-        
-        tq::response_handler().search_streams_response(response);
-    } else {
-        tq::query_builder builder;
-        
-        builder.set_type(tq::query_builder::GAMES);
-        
-        auto response = builder.build().get_response();
-        
-        tq::response_handler().game_response(response);
-    }*/
-    
     return EXIT_SUCCESS;
 }

@@ -22,6 +22,7 @@
 #define _RESPONSE_HANDLER_HPP_
 
 #include <string>
+#include <unordered_map>
 
 #include <json/json.h>
 
@@ -32,7 +33,7 @@ public:
     explicit response_handler(bool v, bool u);
     ~response_handler();
     
-    void handle_response(const std::string &str);
+    void handle_response(const std::string &str, query_builder::type type);
 private:
     void handle_channels(const Json::Value &root);
     void handle_featured(const Json::Value &root);
@@ -42,7 +43,14 @@ private:
     void handle_streams(const Json::Value &root);
     void handle_top(const Json::Value &root);
     
+    typedef void (response_handler::*handler)(const Json::Value &);
+        
+    std::unordered_map<int, handler> _table;
+    
     Json::Reader _reader;
+    
+    int _max_name_str_len;
+    int _max_game_str_len;
    
     bool _v;
     bool _u;
