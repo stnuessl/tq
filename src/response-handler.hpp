@@ -30,7 +30,7 @@
 
 class response_handler {
 public:
-    explicit response_handler(bool v, bool u);
+    explicit response_handler(bool verbose);
     ~response_handler();
     
     void handle_response(const std::string &str, query_builder::type type);
@@ -43,6 +43,12 @@ private:
     void handle_streams(const Json::Value &root);
     void handle_top(const Json::Value &root);
     
+    void print_channel_full(const Json::Value &channel);
+    void print_channel_short(const Json::Value &channel);
+    void print_stream_full(const Json::Value &stream);
+    void print_stream_short(const Json::Value &stream);
+    void print_top(const Json::Value &top);
+    
     typedef void (response_handler::*handler)(const Json::Value &);
         
     std::unordered_map<int, handler> _table;
@@ -51,9 +57,8 @@ private:
     
     int _max_name_str_len;
     int _max_game_str_len;
-   
-    bool _v;
-    bool _u;
+    
+    bool _verbose;
 };
 
 #endif /* _RESPONSE_HANDLER_HPP_ */

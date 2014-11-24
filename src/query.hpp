@@ -36,6 +36,7 @@ private:
     
     std::string _response;
     CURL *_curl;
+    struct curl_slist *_curl_slist;
 };
 
 #endif /* _QUERY_HPP_ */

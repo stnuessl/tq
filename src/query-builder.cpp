@@ -42,23 +42,33 @@ query_builder::~query_builder()
 std::string query_builder::as_string(query_builder::type type) 
 {
 #define BASE_URL "https://api.twitch.tv/kraken/"
+    std::string s;
     
     switch (type) {
     case TYPE_CHANNELS:
-        return std::string(BASE_URL "channels/");
+        s = std::string(BASE_URL "channels/");
+        break;
     case TYPE_FEATURED:
-        return std::string(BASE_URL "streams/featured");
+        s =  std::string(BASE_URL "streams/featured");
+        break;
     case TYPE_SEARCH_CHANNELS:
-        return std::string(BASE_URL "search/channels");
+        s = std::string(BASE_URL "search/channels");
+        break;
     case TYPE_SEARCH_GAMES:
-        return std::string(BASE_URL "search/games");
+        s = std::string(BASE_URL "search/games");
+        break;
     case TYPE_SEARCH_STREAMS:
-        return std::string(BASE_URL "search/streams");
+        s = std::string(BASE_URL "search/streams");
+        break;
     case TYPE_STREAMS:
-        return std::string(BASE_URL "streams/");
+        s = std::string(BASE_URL "streams/");
+        break;
     case TYPE_TOP:
-        return std::string(BASE_URL "games/top");
+        s = std::string(BASE_URL "games/top");
+        break;
     }
+    
+    return s;
 }
 
 void query_builder::set_query(const std::string& str)

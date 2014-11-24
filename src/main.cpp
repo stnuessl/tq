@@ -43,7 +43,6 @@
 #define DESC_SEARCH_S "Search for streams."
 #define DESC_STREAMS  "Retrieve information about a steam. Stream must be live."
 #define DESC_TOP      "Get a list of the currently top played games."
-#define DESC_URL      "Retrieve only urls."
 #define DESC_VERBOSE  "Retrieve more information about queried items."
 
 namespace opt = boost::program_options;
@@ -51,7 +50,7 @@ namespace opt = boost::program_options;
 int main(int argc, char *argv[])
 {
     opt::options_description desc("Available commands");
-    bool verbose, url, debug;
+    bool verbose, debug;
     std::string query;
     unsigned int limit;
     
@@ -67,7 +66,6 @@ int main(int argc, char *argv[])
         ("search-streams,s",  opt::value(&query),    DESC_SEARCH_S)
         ("streams,S",         opt::value(&query),    DESC_STREAMS)
         ("top,t",                                    DESC_TOP)
-        ("url,u",                                    DESC_URL)
         ("verbose,v",                                DESC_VERBOSE);
     
     opt::variables_map argv_map;
@@ -84,7 +82,6 @@ int main(int argc, char *argv[])
         
         debug   = (argv_map.count("debug") > 0);
         verbose = (argv_map.count("verbose") > 0);
-        url     = (argv_map.count("url") > 0);
 
         std::vector<query_builder::type> type_vec;
         
@@ -141,7 +138,7 @@ int main(int argc, char *argv[])
 
         auto r = builder.build().get_response();
         
-        response_handler(verbose, url).handle_response(r, type_vec[0]);
+        response_handler(verbose).handle_response(r, type_vec[0]);
     } catch (std::exception &e) {
         
     }

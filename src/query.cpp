@@ -41,21 +41,29 @@ static size_t gather_response(char *p,
 }
 
 query::query(const std::string &url)
+    : _curl_slist(nullptr)
 {
+    const static char header[] = "Accept: application/vnd.twitchtv.v3+json";
+    
     if (!_libcurl_init) {
         auto err = curl_global_init(CURL_GLOBAL_SSL);
         
         if (err)
-            throw std::runtime_error("curl_global_init() failed");
+            throw std::runtime_error("curl_global_init() failed.");
         
         _libcurl_init = true;
     }
     
+    _curl_slist = curl_slist_append(_curl_slist, header);
+    if (!_curl_slist)
+        throw std::runtime_error("curl_slist_append() failed.");
+    
     _curl = curl_easy_init();
     if (!_curl)
-        throw std::runtime_error("curl_easy_init() failed");
+        throw std::runtime_error("curl_easy_init() failed.");
     
     curl_easy_setopt(_curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curl_slist);
     curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &gather_response);
     curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
@@ -64,6 +72,7 @@ query::query(const std::string &url)
 query::~query()
 {
     curl_easy_cleanup(_curl);
+    curl_slist_free_all(_curl_slist);
 }
 
 std::string query::get_response()
