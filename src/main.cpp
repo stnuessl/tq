@@ -18,26 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdlib>
 #include <iostream>
-#include <json/json.h>
+#include <fstream>
 #include <string.h>
 #include <vector>
 #include <utility>
+#include <cstdlib>
+
+#include <json/json.h>
 
 #include <boost/program_options.hpp>
 
 #include "query.hpp"
 #include "query-builder.hpp"
 #include "response-handler.hpp"
+#include "bookmarks.hpp"
 
 
+#define DESC_ADD_F    ""
 #define DESC_CHANNELS "Retrieve information about a channel."
+#define DESC_CHECK_F  ""
 #define DESC_DEBUG    "Run in debug mode"
 #define DESC_FEATURED "Query featured streams."
+#define DESC_GET_F    ""
 #define DESC_HELP     "Print this help message."
 #define DESC_LIMIT    "Set the number of returned results."
 #define DESC_LIVE     "If searching for games: list only games that are live."
+#define DESC_REMOVE_F ""
 #define DESC_SEARCH_C "Search for channels."
 #define DESC_SEARCH_G "Search for games."
 #define DESC_SEARCH_S "Search for streams."
@@ -47,20 +54,26 @@
 
 namespace opt = boost::program_options;
 
+bookmarks bookmarks(std::string(std::getenv("HOME")) + "/.config/tq/bookmarks");
+
 int main(int argc, char *argv[])
 {
     opt::options_description desc("Available commands");
     bool verbose, debug;
-    std::string query;
+    std::string query, bookmark;
     unsigned int limit;
     
     desc.add_options()
+        ("add-bookmark,a",    opt::value(&bookmark), DESC_ADD_F)
         ("channels,C",        opt::value(&query),    DESC_CHANNELS)
+        ("check-bookmarks,b",                         DESC_CHECK_F)
         ("debug,d",                                  DESC_DEBUG)
         ("featured,f",                               DESC_FEATURED)
+        ("get-bookmarks",                            DESC_GET_F)
         ("help,h",                                   DESC_HELP)
         ("limit",             opt::value(&limit),    DESC_LIMIT)
         ("live,l",                                   DESC_LIVE)
+        ("remove-bookmark,r", opt::value(&bookmark), DESC_REMOVE_F)
         ("search-channels,c", opt::value(&query),    DESC_SEARCH_C)
         ("search-games,g",    opt::value(&query),    DESC_SEARCH_G)
         ("search-streams,s",  opt::value(&query),    DESC_SEARCH_S)
@@ -74,7 +87,7 @@ int main(int argc, char *argv[])
         auto parsed = opt::parse_command_line(argc, argv, desc);
         opt::store(parsed, argv_map);
         opt::notify(argv_map);
-        
+                
         if (argv_map.count("help")) {
             std::cout << desc << std::endl;
             std::exit(EXIT_SUCCESS);
@@ -82,6 +95,28 @@ int main(int argc, char *argv[])
         
         debug   = (argv_map.count("debug") > 0);
         verbose = (argv_map.count("verbose") > 0);
+        
+        response_handler handler(verbose);
+        
+        if (argv_map.count("check-bookmarks")) {
+            bookmarks.check(handler);
+            std::exit(EXIT_SUCCESS);
+        }
+        
+        if (argv_map.count("get-bookmarks")) {
+            std::cout << bookmarks;
+            std::exit(EXIT_SUCCESS);
+        }
+        
+        if (argv_map.count("add-bookmark")) {
+            bookmarks.add(bookmark);
+            std::exit(EXIT_SUCCESS);
+        }
+        
+        if (argv_map.count("remove-bookmark")) {
+            bookmarks.remove(bookmark);
+            std::exit(EXIT_SUCCESS);
+        }
 
         std::vector<query_builder::type> type_vec;
         
@@ -138,9 +173,9 @@ int main(int argc, char *argv[])
 
         auto r = builder.build().get_response();
         
-        response_handler(verbose).handle_response(r, type_vec[0]);
+        handler.handle_response(r, type_vec[0]);
     } catch (std::exception &e) {
-        
+        std::cerr << "Exception: " << e.what() << std::endl;
     }
 
     return EXIT_SUCCESS;

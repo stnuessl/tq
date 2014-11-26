@@ -43,7 +43,7 @@ static size_t gather_response(char *p,
 query::query(const std::string &url)
     : _curl_slist(nullptr)
 {
-    const static char header[] = "Accept: application/vnd.twitchtv.v3+json";
+    const static char header[] = "Accept: application/vnd.twitchtv.v2+json";
     
     if (!_libcurl_init) {
         auto err = curl_global_init(CURL_GLOBAL_SSL);

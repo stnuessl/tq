@@ -23,13 +23,14 @@ set(SRC
     src/query.cpp
     src/response-handler.cpp
     src/query-builder.cpp
+    src/bookmarks.cpp
     )
 
 # find_package(PkgConfig REQUIRED)
 
 find_package(CURL REQUIRED)
 find_package(JSONCPP REQUIRED)
-find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.40 COMPONENTS program_options filesystem system REQUIRED)
 
 
 # <XPREFIX>_FOUND          ... set to 1 if module(s) exist

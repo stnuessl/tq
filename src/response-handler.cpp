@@ -73,10 +73,12 @@ void response_handler::handle_response(const std::string& str,
     }
 
     if (root.isMember("error")) {
-        auto msg  = root["error"].asString();
-        auto code = root["status"].asInt();
+        auto msg   = root["message"].asString();
+        auto code  = root["status"].asInt();
+        auto error = root["error"].asString();
         
-        std::cerr << "Error " << code << " - " << msg << std::endl;
+        std::cerr << "Error: " << error << " / " << code << " - " << msg 
+                  << std::endl;
         return;
     }
     
@@ -108,7 +110,7 @@ void response_handler::handle_featured(const Json::Value& root)
         for (auto &x : list) {
             auto stream = x["stream"];
             
-            print_channel_full(stream);
+            print_stream_full(stream);
         }
     } else {
         for (auto &x : list) {
@@ -167,7 +169,7 @@ void response_handler::handle_streams(const Json::Value& root)
         auto self = root["_links"]["self"].asCString();
         auto name = std::strrchr(self, '/') + 1;
         
-        std::cout << "  Stream [ " << name  << " ] is offline." << std::endl;
+        std::cout << "  Stream [ " << name  << " ]: offline" << std::endl;
     } else {
         print_stream_full(stream);
     }
@@ -178,13 +180,13 @@ void response_handler::print_channel_full(const Json::Value &channel)
     const auto name     = channel["name"].asString();
     const auto status   = channel["status"].asString();
     const auto url      = channel["url"].asString();
-    const auto id       = channel["_id"].asInt();
+    const auto id       = channel["_id"].asUInt64();
     const auto game     = channel["game"].asString();
     const auto delay    = channel["delay"].asInt();
     const auto mature   = (channel["mature"].asBool()) ? "yes" : "no";
     const auto language = channel["language"].asString();
     
-    std::cout << "  Channel [ " << name << " ]:"  << "\n"
+    std::cout << "  Channel [ " << name << " ]:"    << "\n"
               << "      Status   : " << status      << "\n"
               << "      ID       : " << id          << "\n"
               << "      Url      : " << url         << "\n"
@@ -225,11 +227,15 @@ void response_handler::print_stream_full(const Json::Value &stream)
 
 void response_handler::print_stream_short(const Json::Value &stream)
 {
+    const auto channel = stream["channel"];
+    
+    const auto name    = channel["name"].asString();
+    const auto url     = channel["url"].asString();
     const auto viewers = stream["viewers"].asInt();
     const auto game    = stream["game"].asString();
-    const auto url     = stream["channel"]["url"].asString();
     
     std::cout << "  " << std::setw(11)                << std::right << viewers
+              << "  " << std::setw(_max_name_str_len) << std::left  << name
               << "  " << std::setw(_max_game_str_len) << std::left << game
               << "  " << url << std::endl;
 }
