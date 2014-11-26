@@ -49,9 +49,9 @@ Run the following command to install them.
 #### Debian
 
 install the following packages:
-
+```
 # apt-get install libcurl4-openssl-dev libjsoncpp-dev libboost-program-options-dev libboost-filesystem-dev libboost-system-dev
- 
+``` 
 
 #### Fedora
 
