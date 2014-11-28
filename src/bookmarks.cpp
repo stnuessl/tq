@@ -23,14 +23,13 @@
 #include <string>
 #include <fstream>
 
-#include <boost/filesystem.hpp>
-
-#include "response-handler.hpp"
+#include "query.hpp"
+#include "response-printer.hpp"
 #include "bookmarks.hpp"
 
 
 bookmarks::bookmarks(const std::string &path)
-    : _path(path)
+    : file(path)
 {
 }
 
@@ -58,16 +57,18 @@ void bookmarks::remove(const std::string &name)
     write_bookmarks(favs, set);
 }
 
-void bookmarks::check(response_handler &handler)
+void bookmarks::check(response_printer &printer)
 {
     auto favs = read_bookmarks();
-    query_builder builder(query_builder::TYPE_STREAMS);
+    
+    query q;
     
     for (const auto &f : favs) {
-        builder.set_query(f);
+        q.set_name(f);
         
-        auto response = builder.build().get_response();
-        handler.handle_response(response, query_builder::TYPE_STREAMS);
+        auto r = q.get_response(query::TYPE_STREAMS);
+                
+        printer.print_response(r);
     }
 }
 
@@ -81,25 +82,14 @@ std::ostream &operator<<(std::ostream &o, const bookmarks &bm)
     return o;
 }
 
-std::vector< std::string > bookmarks::read_bookmarks() const
+std::vector<std::string> bookmarks::read_bookmarks() const
 {
     std::vector<std::string> ret;
     
-    if (!fs::exists(_path)) {
-        std::string f(_path.c_str());
-        throw std::runtime_error("File \"" + f + "\" does not exist.");
-    }
-    
-    if (!fs::is_regular_file(_path)) {
-        std::string f(_path.c_str());
-        throw std::runtime_error("File \"" + f + "\" is not a regular file.");
-    }
-    
-    std::ifstream file(_path.c_str(), std::ios::in);
+    std::ifstream reader(c_str(), std::ios::in);
     std::string line;
-    query_builder builder(query_builder::TYPE_STREAMS);
     
-    while(std::getline(file, line)) {
+    while(std::getline(reader, line)) {
         
         if (line[0] == '#' || line[0] == ';')
             continue;
@@ -124,11 +114,11 @@ std::vector< std::string > bookmarks::read_bookmarks() const
 void bookmarks::write_bookmarks(const std::vector<std::string> &vec, 
                                 std::set< std::string > &set) const
 {
-    std::ofstream file(_path.c_str(), std::ios::out);
+    std::ofstream writer(c_str(), std::ios::out);
     
     for (auto x : vec) {
         if (set.count(x) == 0) {
-            file << x << "\n";
+            writer << x << "\n";
             set.insert(x);
         }
     }

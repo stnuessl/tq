@@ -18,47 +18,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _RESPONSE_HANDLER_HPP_
-#define _RESPONSE_HANDLER_HPP_
+#ifndef _RESPONSE_PRINTER_HPP_
+#define _RESPONSE_PRINTER_HPP_
 
-#include <string>
 #include <unordered_map>
+#include <iostream>
+#include <utility>
 
 #include <json/json.h>
 
-#include "query-builder.hpp"
+#include "query.hpp"
+#include "file.hpp"
 
-class response_handler {
+class response_printer : public file {
 public:
-    explicit response_handler(bool verbose);
-    ~response_handler();
+    explicit response_printer(const std::string &config, bool json = false,
+                              bool verbose = false);
+    ~response_printer();
     
-    void handle_response(const std::string &str, query_builder::type type);
+    void print_response(const query::response &response);
 private:
-    void handle_channels(const Json::Value &root);
-    void handle_featured(const Json::Value &root);
-    void handle_search_channels(const Json::Value &root);
-    void handle_search_games(const Json::Value &root);
-    void handle_search_streams(const Json::Value &root);
-    void handle_streams(const Json::Value &root);
-    void handle_top(const Json::Value &root);
+    void print_channels(const Json::Value &root);
+    void print_featured(const Json::Value &root);
+    void print_search_channels(const Json::Value &root);
+    void print_search_games(const Json::Value &root);
+    void print_search_streams(const Json::Value &root);
+    void print_streams(const Json::Value &root);
+    void print_top(const Json::Value &root);
     
     void print_channel_full(const Json::Value &channel);
     void print_channel_short(const Json::Value &channel);
     void print_stream_full(const Json::Value &stream);
     void print_stream_short(const Json::Value &stream);
-    void print_top(const Json::Value &top);
+    void print_top_game(const Json::Value &top);
     
-    typedef void (response_handler::*handler)(const Json::Value &);
+    typedef void (response_printer::*handler)(const Json::Value &);
         
     std::unordered_map<int, handler> _table;
     
     Json::Reader _reader;
     
-    int _max_name_str_len;
-    int _max_game_str_len;
+    unsigned int _int_len;
+    unsigned int _name_len;
+    unsigned int _game_len;
     
+    bool _json;
     bool _verbose;
 };
 
-#endif /* _RESPONSE_HANDLER_HPP_ */
+#endif /* _RESPONSE_PRINTER_HPP_ */

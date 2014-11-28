@@ -18,43 +18,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _QUERY_HPP_
-#define _QUERY_HPP_
+#ifndef _URL_CLIENT_HPP_
+#define _URL_CLIENT_HPP_
 
 #include <string>
-#include <utility>
 
-#include "url-client.hpp"
+#include <curl/curl.h>
 
-class query {
+class url_client {
 public:
-    explicit query();
-    ~query();
+    explicit url_client(const std::string &url);
+    ~url_client();
     
-    enum type {
-        TYPE_CHANNELS,
-        TYPE_FEATURED,
-        TYPE_SEARCH_C,
-        TYPE_SEARCH_G,
-        TYPE_SEARCH_S,
-        TYPE_STREAMS,
-        TYPE_TOP,
-    };
-    
-    void set_name(const std::string &str);
-    void set_limit(unsigned int limit);
-    void set_live(bool live);
-    
-    typedef std::pair<query::type, std::string> response;
-    
-    response get_response(query::type type);
+    std::string get_response();
 private:
+    static bool _libcurl_init;
     
-    std::string base_url(query::type type);
-    
-    std::string _name;
-    unsigned int _limit;
-    bool _live;
+    std::string _response;
+    CURL *_curl;
+    struct curl_slist *_curl_slist;
 };
 
-#endif /* _QUERY_HPP_ */
+#endif /* _URL_CLIENT_HPP_ */

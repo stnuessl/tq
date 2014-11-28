@@ -21,9 +21,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 set(SRC 
     src/main.cpp
     src/query.cpp
-    src/response-handler.cpp
-    src/query-builder.cpp
+    src/url-client.cpp
+    src/response-printer.cpp
     src/bookmarks.cpp
+    src/file.cpp
     )
 
 # find_package(PkgConfig REQUIRED)

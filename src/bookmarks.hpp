@@ -18,27 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FAVORITES_HPP_
-#define _FAVORITES_HPP_
+#ifndef _BOOKMARKS_HPP_
+#define _BOOKMARKS_HPP_
 
 #include <vector>
 #include <set>
 #include <ostream>
 
-#include <boost/filesystem.hpp>
+#include "file.hpp"
+#include "response-printer.hpp"
 
-#include "response-handler.hpp"
-
-namespace fs = boost::filesystem;
-
-class bookmarks {
+class bookmarks : public file {
 public:
     explicit bookmarks(const std::string &path);
     ~bookmarks();
     
     void add(const std::string &name);
     void remove(const std::string &name);
-    void check(response_handler &handler);
+    void check(response_printer &handler);
     
     friend std::ostream &operator<<(std::ostream &o, const bookmarks &bm);
     
@@ -46,7 +43,6 @@ private:
     std::vector<std::string> read_bookmarks() const;
     void write_bookmarks(const std::vector<std::string> &vec,
                          std::set<std::string> &set) const;
-    const fs::path _path;
 };
 
-#endif /* _FAVORITES_HPP_ */
+#endif /* _BOOKMARKS_HPP_ */

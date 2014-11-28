@@ -18,43 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _QUERY_HPP_
-#define _QUERY_HPP_
-
 #include <string>
 #include <utility>
+#include <fstream>
 
-#include "url-client.hpp"
+#include <boost/filesystem.hpp>
 
-class query {
-public:
-    explicit query();
-    ~query();
-    
-    enum type {
-        TYPE_CHANNELS,
-        TYPE_FEATURED,
-        TYPE_SEARCH_C,
-        TYPE_SEARCH_G,
-        TYPE_SEARCH_S,
-        TYPE_STREAMS,
-        TYPE_TOP,
-    };
-    
-    void set_name(const std::string &str);
-    void set_limit(unsigned int limit);
-    void set_live(bool live);
-    
-    typedef std::pair<query::type, std::string> response;
-    
-    response get_response(query::type type);
-private:
-    
-    std::string base_url(query::type type);
-    
-    std::string _name;
-    unsigned int _limit;
-    bool _live;
-};
+#include "file.hpp"
 
-#endif /* _QUERY_HPP_ */
+file::file(const std::string &path)
+    : _path(path)
+{
+    if (!fs::exists(_path.parent_path())) {
+        bool ok = fs::create_directories(_path.parent_path());
+        if (!ok)
+            throw std::runtime_error("Failed to create directories.");
+    }
+    
+    if (!fs::exists(_path)) {
+        /* just create the file */
+        std::ofstream file(_path.c_str(), std::ios::out);
+    }
+    
+    if (!fs::is_regular_file(_path)) {
+        std::string f(_path.c_str());
+        throw std::runtime_error("File \"" + f + "\" is not a regular file.");
+    }
+}
+
+file::~file()
+{
+
+}
+
+const char *file::c_str() const
+{
+    return _path.c_str();
+}
