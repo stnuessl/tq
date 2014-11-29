@@ -62,8 +62,13 @@ std::string url_client::get_response()
     
     auto ok = curl_easy_perform(_curl);
     
-    if (ok != CURLE_OK)
-        throw std::runtime_error("curl_easy_perform() failed.");
-    
+    if (ok != CURLE_OK) {
+        std::string err("curl_easy_perform() failed - ");
+        err += "(";
+        err += std::to_string(ok);
+        err += ") ";
+        err += curl_easy_strerror(ok);
+        throw std::runtime_error(err);
+    }
     return std::move(_response);
 }

@@ -52,8 +52,14 @@
 #define DESC_VERBOSE  "Retrieve more information about queried items."
 
 struct args {
-    std::string bookmark;
-    std::string name;
+    std::string add;
+    std::string remove;
+    std::string channel;
+    std::string s_channels;
+    std::string s_games;
+    std::string s_streams;
+    std::string stream;
+    bool live;
     bool json;
     bool verbose;
     unsigned int limit;
@@ -70,27 +76,25 @@ int main(int argc, char *argv[])
 {
     opt::options_description desc("Available commands");
     args args;
-    
+
     desc.add_options()
-        ("add-bookmark,a",    opt::value(&args.bookmark), DESC_ADD_B)
-        ("channels,C",        opt::value(&args.name),     DESC_CHANNELS)
-        ("check-bookmarks,b",                             DESC_CHECK_B)
-        ("featured,f",                                    DESC_FEATURED)
-        ("get-bookmarks",                                 DESC_GET_F)
-        ("help,h",                                        DESC_HELP)
-        ("json,j",                                        DESC_JSON)
-        ("limit",             opt::value(&args.limit),    DESC_LIMIT)
-        ("live",                                          DESC_LIVE)
-        ("remove-bookmark,r", opt::value(&args.bookmark), DESC_REMOVE_B)
-        ("search-channels,c", opt::value(&args.name),     DESC_SEARCH_C)
-        ("search-games,g",    opt::value(&args.name),     DESC_SEARCH_G)
-        ("search-streams,s",  opt::value(&args.name),     DESC_SEARCH_S)
-        ("streams,S",         opt::value(&args.name),     DESC_STREAMS)
-        ("top,t",                                         DESC_TOP)
-        ("verbose,v",                                     DESC_VERBOSE);
-    
-    
-    
+        ("add-bookmark,a",    opt::value(&args.add),        DESC_ADD_B)
+        ("channels,C",        opt::value(&args.channel),    DESC_CHANNELS)
+        ("check-bookmarks,b",                               DESC_CHECK_B)
+        ("featured,f",                                      DESC_FEATURED)
+        ("get-bookmarks",                                   DESC_GET_F)
+        ("help,h",                                          DESC_HELP)
+        ("json,j",                                          DESC_JSON)
+        ("limit",             opt::value(&args.limit),      DESC_LIMIT)
+        ("live",                                            DESC_LIVE)
+        ("remove-bookmark,r", opt::value(&args.remove),     DESC_REMOVE_B)
+        ("search-channels,c", opt::value(&args.s_channels), DESC_SEARCH_C)
+        ("search-games,g",    opt::value(&args.s_games),    DESC_SEARCH_G)
+        ("search-streams,s",  opt::value(&args.s_streams),  DESC_SEARCH_S)
+        ("streams,S",         opt::value(&args.stream),     DESC_STREAMS)
+        ("top,t",                                           DESC_TOP)
+        ("verbose,v",                                       DESC_VERBOSE);
+
     try {
         opt::variables_map argv_map;
         
@@ -105,82 +109,76 @@ int main(int argc, char *argv[])
         
         args.verbose = (argv_map.count("verbose") > 0);
         args.json    = (argv_map.count("json") > 0);
+        args.live    = (argv_map.count("live") > 0);
         
         response_printer printer(config, args.json, args.verbose);
         
-        if (argv_map.count("check-bookmarks")) {
+        if (argv_map.count("check-bookmarks"))
             bookmarks.check(printer);
-            std::exit(EXIT_SUCCESS);
-        }
         
-        if (argv_map.count("get-bookmarks")) {
+        if (argv_map.count("get-bookmarks"))
             std::cout << bookmarks;
-            std::exit(EXIT_SUCCESS);
+        
+        if (argv_map.count("add-bookmark"))
+            bookmarks.add(args.add);
+        
+        if (argv_map.count("remove-bookmark"))
+            bookmarks.remove(args.add);
+
+        std::vector<std::pair<query::type, std::string>> arg_vec;
+        
+        if (argv_map.count("channels")) {
+            auto pair = std::make_pair(query::TYPE_CHANNELS, args.channel);
+            arg_vec.push_back(pair);
         }
         
-        if (argv_map.count("add-bookmark")) {
-            bookmarks.add(args.bookmark);
-            std::exit(EXIT_SUCCESS);
+        if (argv_map.count("featured")) {
+            auto pair = std::make_pair(query::TYPE_FEATURED, std::string());
+            arg_vec.push_back(pair);
         }
         
-        if (argv_map.count("remove-bookmark")) {
-            bookmarks.remove(args.bookmark);
-            std::exit(EXIT_SUCCESS);
+        if (argv_map.count("search-channels")) {
+            auto pair = std::make_pair(query::TYPE_SEARCH_C, args.s_channels);
+            arg_vec.push_back(pair);
+        }
+        
+        if (argv_map.count("search-games")) {
+            auto pair = std::make_pair(query::TYPE_SEARCH_G, args.s_games);
+            arg_vec.push_back(pair);
+        }
+            
+        if (argv_map.count("search-streams")) {
+            auto pair = std::make_pair(query::TYPE_SEARCH_S, args.s_streams);
+            arg_vec.push_back(pair);
+        }
+        
+        if (argv_map.count("streams")) {
+            auto pair = std::make_pair(query::TYPE_STREAMS, args.stream);
+            arg_vec.push_back(pair);
+        }
+        
+        if (argv_map.count("top")) {
+            auto pair = std::make_pair(query::TYPE_TOP, std::string());
+            arg_vec.push_back(pair);
         }
 
-        std::vector<query::type> type_vec;
-        
-        if (argv_map.count("channels"))
-            type_vec.push_back(query::TYPE_CHANNELS);
-        
-        if (argv_map.count("featured"))
-            type_vec.push_back(query::TYPE_FEATURED);
-        
-        if (argv_map.count("search-channels"))
-            type_vec.push_back(query::TYPE_SEARCH_C);
-        
-        if (argv_map.count("search-games"))
-            type_vec.push_back(query::TYPE_SEARCH_G);
-        
-        if (argv_map.count("search-streams"))
-            type_vec.push_back(query::TYPE_SEARCH_S);
-        
-        if (argv_map.count("streams"))
-            type_vec.push_back(query::TYPE_STREAMS);
-        
-        if (argv_map.count("top"))
-            type_vec.push_back(query::TYPE_TOP);
-        
-        if (type_vec.size() == 0) {
-            std::cerr << "** Error: no query type specified. " 
-                      << "Use one of the following:\n"
-                      << " --search-channels   --channels      --top\n"
-                      << " --search-games      --featured\n"
-                      << " --search-streams    --streams" << std::endl;
-            std::exit(EXIT_FAILURE);
-        } 
-        
-        if (type_vec.size() > 1) {
-            std::cerr << "** Error: multiple query types were passed. "
-                      << "Only one query type is allowed."
-                      << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
-        
         query q;
         
-        if (!args.name.empty())
-            q.set_name(args.name);
-        
-        if (argv_map.count("live"))
+        if (args.live)
             q.set_live(true);
         
         if (argv_map.count("limit"))
             q.set_limit(args.limit);
-
-        auto response = q.get_response(type_vec[0]);
         
-        printer.print_response(response);
+        for (const auto &x : arg_vec) {
+            
+            if (!x.second.empty())
+                q.set_name(x.second);
+
+            auto response = q.get_response(x.first);
+            
+            printer.print_response(response);
+        }
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
