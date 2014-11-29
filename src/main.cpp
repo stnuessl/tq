@@ -89,9 +89,11 @@ int main(int argc, char *argv[])
         ("top,t",                                         DESC_TOP)
         ("verbose,v",                                     DESC_VERBOSE);
     
-    opt::variables_map argv_map;
+    
     
     try {
+        opt::variables_map argv_map;
+        
         auto parsed = opt::parse_command_line(argc, argv, desc);
         opt::store(parsed, argv_map);
         opt::notify(argv_map);

@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <cstring>
 #include <cmath>
+#include <fstream>
 
 #include <json/json.h>
 #include <json/writer.h>
@@ -34,6 +35,12 @@
 #include "query.hpp"
 
 namespace opt = boost::program_options;
+
+static void trim_string(std::string &str, unsigned int size)
+{
+    if (str.length() > size)
+        str.erase(size);
+}
 
 response_printer::response_printer(const std::string &config, bool json,
                                    bool verbose)
@@ -54,7 +61,35 @@ response_printer::response_printer(const std::string &config, bool json,
       _json(json),
       _verbose(verbose)
 {
-    opt::option_description desc;
+    opt::options_description desc;
+    
+    desc.add_options()
+        ("printer.integer-length", opt::value(&_int_len))
+        ("printer.name-length",    opt::value(&_name_len))
+        ("printer.game-length",    opt::value(&_game_len));
+        
+    try {
+        opt::variables_map conf_var_map;
+        std::ifstream file(config);
+        
+        auto parsed = opt::parse_config_file(file, desc);
+        opt::store(parsed, conf_var_map);
+        opt::notify(conf_var_map);
+        
+        file.close();
+        
+        if (conf_var_map.empty()) {
+            std::ofstream file(config);
+            
+            file << "[printer]\n";
+            file << "integer-length = " << _int_len     << "\n";
+            file << "name-length    = " << _name_len    << "\n";
+            file << "game-length    = " << _game_len    << "\n";
+        }
+        
+    } catch (std::exception &e) {
+        std::cerr << "** Error: unable to parse config - " << e.what() << "\n";
+    }
 }
 
 response_printer::~response_printer()
@@ -207,9 +242,12 @@ void response_printer::print_channel_full(const Json::Value &channel)
 
 void response_printer::print_channel_short(const Json::Value &channel)
 {
-    const auto name = channel["name"].asString();
-    const auto game = channel["game"].asString();
+    auto name = channel["name"].asString();
+    auto game = channel["game"].asString();
     const auto url  = channel["url"].asString();
+    
+    trim_string(name, _name_len);
+    trim_string(game, _game_len);
     
     std::cout << "  " << std::setw(_name_len) << std::left << name
               << "  " << std::setw(_game_len) << std::left << game
@@ -227,7 +265,7 @@ void response_printer::print_stream_full(const Json::Value &stream)
     const auto id      = stream["_id"].asUInt64();
     const auto game    = stream["game"].asString();
     
-    std::cout << "  Stream [ " << name << " ]:" << "\n"
+    std::cout << "  Stream [ " << name << " ]:"   << "\n"
               << "      Url     : " << url        << "\n"
               << "      Viewers : " << viewers    << "\n"
               << "      Id      : " << id         << "\n"
@@ -238,12 +276,15 @@ void response_printer::print_stream_short(const Json::Value &stream)
 {
     const auto channel = stream["channel"];
     
-    const auto name    = channel["name"].asString();
+    auto name    = channel["name"].asString();
     const auto url     = channel["url"].asString();
     const auto viewers = stream["viewers"].asInt();
-    const auto game    = stream["game"].asString();
+    auto game    = stream["game"].asString();
     
-    std::cout << "  " << std::setw(_int_len)          << std::right << viewers
+    trim_string(name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_int_len)  << std::right << viewers
               << "  " << std::setw(_name_len) << std::left  << name
               << "  " << std::setw(_game_len) << std::left << game
               << "  " << url << std::endl;
