@@ -18,43 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _QUERY_HPP_
-#define _QUERY_HPP_
+#ifndef _FILE_HPP_
+#define _FILE_HPP_
 
 #include <string>
-#include <utility>
+#include <iostream>
 
-#include "url-client.hpp"
+#include <boost/filesystem.hpp>
 
-class query {
+namespace fs = boost::filesystem;
+
+class file {
 public:
-    explicit query();
-    ~query();
-    
-    enum type {
-        TYPE_CHANNELS,
-        TYPE_FEATURED,
-        TYPE_SEARCH_C,
-        TYPE_SEARCH_G,
-        TYPE_SEARCH_S,
-        TYPE_STREAMS,
-        TYPE_TOP,
-    };
-    
-    void set_name(const std::string &str);
-    void set_limit(unsigned int limit);
-    void set_live(bool live);
-    
-    typedef std::pair<query::type, std::string> response;
-    
-    response get_response(query::type type);
+    explicit file(const std::string &path);
+    ~file();
+
+    const char *c_str() const;
 private:
-    
-    std::string base_url(query::type type);
-    
-    std::string _name;
-    unsigned int _limit;
-    bool _live;
+    fs::path _path;
 };
 
-#endif /* _QUERY_HPP_ */
+#endif /* _FILE_HPP_ */

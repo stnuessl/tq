@@ -20,69 +20,118 @@
 
 #include <string>
 #include <utility>
+#include <algorithm>
 #include <stdexcept>
-
-#include <curl/curl.h>
 
 #include "query.hpp"
 
-bool query::_libcurl_init = false;
 
-static size_t gather_response(char *p, 
-                              size_t size, 
-                              size_t nmemb, 
-                              std::string *str)
+query::query()
+    : _name(),
+      _limit(10),
+      _live(false)
 {
-    size_t total = size * nmemb;
-    
-    str->append(p, total);
-    
-    return total;
-}
 
-query::query(const std::string &url)
-    : _curl_slist(nullptr)
-{
-    const static char header[] = "Accept: application/vnd.twitchtv.v2+json";
-    
-    if (!_libcurl_init) {
-        auto err = curl_global_init(CURL_GLOBAL_SSL);
-        
-        if (err)
-            throw std::runtime_error("curl_global_init() failed.");
-        
-        _libcurl_init = true;
-    }
-    
-    _curl_slist = curl_slist_append(_curl_slist, header);
-    if (!_curl_slist)
-        throw std::runtime_error("curl_slist_append() failed.");
-    
-    _curl = curl_easy_init();
-    if (!_curl)
-        throw std::runtime_error("curl_easy_init() failed.");
-    
-    curl_easy_setopt(_curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curl_slist);
-    curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &gather_response);
-    curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
 }
 
 query::~query()
 {
-    curl_easy_cleanup(_curl);
-    curl_slist_free_all(_curl_slist);
+    
 }
 
-std::string query::get_response()
+void query::set_name(const std::string &str)
 {
-    _response.clear();
-    
-    auto ok = curl_easy_perform(_curl);
-    
-    if (ok != CURLE_OK)
-        throw std::runtime_error("curl_easy_perform() failed.");
-    
-    return std::move(_response);
+    _name = str;
 }
+
+void query::set_limit(unsigned int limit)
+{
+    const static unsigned int min = 1;
+    const static unsigned int max = 100;
+    
+    limit = std::max(limit, min);
+    limit = std::min(limit, max);
+    
+    _limit = limit;
+}
+
+void query::set_live(bool live)
+{
+    _live = live;
+}
+
+std::pair< query::type, std::string > query::get_response(query::type type)
+{
+    if (type != TYPE_TOP && type != TYPE_FEATURED && _name.empty())
+        throw std::runtime_error("No string to query specified.");
+    
+    std::string limit = "limit=";
+    std::string live  = "live=";
+    
+    limit += std::to_string(_limit);
+    live  += (_live) ? "true" : "false";
+    
+    auto url = base_url(type);
+    
+    switch (type) {
+    case TYPE_CHANNELS:
+    case TYPE_STREAMS:
+        url += _name;
+        break;
+    case TYPE_FEATURED:
+    case TYPE_TOP:
+        url += "?";
+        url += limit;
+        break;
+    case TYPE_SEARCH_C:
+    case TYPE_SEARCH_S:
+        url += "?q=";
+        url += _name;
+        url += "&";
+        url += limit;
+        break;
+    case TYPE_SEARCH_G:
+        url += "?q=";
+        url += _name;
+        url += "&type=suggest&";
+        url += live;
+        break;
+    default:
+        throw std::runtime_error("Invalid query::type specified.");
+    }
+    
+    return std::make_pair(type, url_client(url).get_response());
+}
+
+std::string query::base_url(query::type type)
+{
+#define BASE_URL "https://api.twitch.tv/kraken/"
+    std::string s;
+    
+    switch (type) {
+        case TYPE_CHANNELS:
+            s = std::string(BASE_URL "channels/");
+            break;
+        case TYPE_FEATURED:
+            s =  std::string(BASE_URL "streams/featured");
+            break;
+        case TYPE_SEARCH_C:
+            s = std::string(BASE_URL "search/channels");
+            break;
+        case TYPE_SEARCH_G:
+            s = std::string(BASE_URL "search/games");
+            break;
+        case TYPE_SEARCH_S:
+            s = std::string(BASE_URL "search/streams");
+            break;
+        case TYPE_STREAMS:
+            s = std::string(BASE_URL "streams/");
+            break;
+        case TYPE_TOP:
+            s = std::string(BASE_URL "games/top");
+            break;
+    }
+    
+    return s;
+}
+

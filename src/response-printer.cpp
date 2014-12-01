@@ -24,51 +24,94 @@
 #include <iomanip>
 #include <cstring>
 #include <cmath>
+#include <fstream>
 
 #include <json/json.h>
+#include <json/writer.h>
 
-#include "response-handler.hpp"
-#include "query-builder.hpp"
+#include <boost/program_options.hpp>
 
-response_handler::response_handler(bool verbose)
-    : _table ({
-          { query_builder::TYPE_CHANNELS,
-              &response_handler::handle_channels },
-          { query_builder::TYPE_FEATURED,
-              &response_handler::handle_featured },
-          { query_builder::TYPE_SEARCH_CHANNELS,
-              &response_handler::handle_search_channels },
-          { query_builder::TYPE_SEARCH_GAMES,
-              &response_handler::handle_search_games },
-          { query_builder::TYPE_SEARCH_STREAMS,
-              &response_handler::handle_search_streams },
-          { query_builder::TYPE_STREAMS,
-              &response_handler::handle_streams },
-          { query_builder::TYPE_TOP,
-              &response_handler::handle_top }
+#include "response-printer.hpp"
+#include "query.hpp"
+
+namespace opt = boost::program_options;
+
+static void trim_string(std::string &str, unsigned int size)
+{
+    if (str.length() > size)
+        str.erase(size);
+}
+
+response_printer::response_printer(const std::string &config, bool json,
+                                   bool verbose)
+    : file(config),
+      _table ({
+          { query::TYPE_CHANNELS, &response_printer::print_channels          },
+          { query::TYPE_FEATURED, &response_printer::print_featured          },
+          { query::TYPE_SEARCH_C, &response_printer::print_search_channels   },
+          { query::TYPE_SEARCH_G, &response_printer::print_search_games      },
+          { query::TYPE_SEARCH_S, &response_printer::print_search_streams    },
+          { query::TYPE_STREAMS,  &response_printer::print_streams           },
+          { query::TYPE_TOP,      &response_printer::print_top               }
       }),
       _reader(),
-      _max_name_str_len(20),
-      _max_game_str_len(40),
+      _int_len(11),
+      _name_len(20),
+      _game_len(40),
+      _json(json),
       _verbose(verbose)
 {
+    opt::options_description desc;
+    
+    desc.add_options()
+        ("printer.integer-length", opt::value(&_int_len))
+        ("printer.name-length",    opt::value(&_name_len))
+        ("printer.game-length",    opt::value(&_game_len));
+        
+    try {
+        opt::variables_map conf_var_map;
+        std::ifstream file(config);
+        
+        auto parsed = opt::parse_config_file(file, desc);
+        opt::store(parsed, conf_var_map);
+        opt::notify(conf_var_map);
+        
+        file.close();
+        
+        if (conf_var_map.empty()) {
+            std::ofstream file(config);
+            
+            file << "[printer]\n";
+            file << "integer-length = " << _int_len     << "\n";
+            file << "name-length    = " << _name_len    << "\n";
+            file << "game-length    = " << _game_len    << "\n";
+        }
+        
+    } catch (std::exception &e) {
+        std::cerr << "** Error: unable to parse config - " << e.what() << "\n";
+    }
 }
 
-response_handler::~response_handler()
+response_printer::~response_printer()
 {
 
 }
 
-
-void response_handler::handle_response(const std::string& str, 
-                                       query_builder::type type)
+void response_printer::print_response(const query::response &response)
 {
     Json::Value root;
     
-    auto ok = _reader.parse(str, root, false);
+    auto type = response.first;
+    auto str  = response.second;
     
+    auto ok = _reader.parse(str, root, false);
     if (!ok) {
         std::cerr << "Unable to parse response." << std::endl;
+        return;
+    }
+    
+    if (_json) {
+        Json::StyledStreamWriter().write(std::cout, root);
         return;
     }
 
@@ -91,18 +134,18 @@ void response_handler::handle_response(const std::string& str,
     }
 }
 
-void response_handler::handle_top(const Json::Value &root)
+void response_printer::print_top(const Json::Value &root)
 {
     for (auto &x : root["top"])
-        print_top(x);
+        print_top_game(x);
 }
 
-void response_handler::handle_channels(const Json::Value &root)
+void response_printer::print_channels(const Json::Value &root)
 {
     print_channel_full(root);
 }
 
-void response_handler::handle_featured(const Json::Value& root)
+void response_printer::print_featured(const Json::Value& root)
 {
     auto list = root["featured"];
 
@@ -121,7 +164,7 @@ void response_handler::handle_featured(const Json::Value& root)
     }
 }
 
-void response_handler::handle_search_channels(const Json::Value& root)
+void response_printer::print_search_channels(const Json::Value& root)
 {
     auto channels = root["channels"];
     
@@ -134,7 +177,7 @@ void response_handler::handle_search_channels(const Json::Value& root)
     }   
 }
 
-void response_handler::handle_search_games(const Json::Value& root)
+void response_printer::print_search_games(const Json::Value& root)
 {
     auto games = root["games"];
     
@@ -142,13 +185,13 @@ void response_handler::handle_search_games(const Json::Value& root)
         auto name = x["name"].asString();
         auto pop  = x["popularity"].asInt();
         
-        std::cout << "  " << std::setw(11) << std::right << pop
+        std::cout << "  " << std::setw(_int_len) << std::right << pop
                   << "  " << name 
                   << std::endl;
     }
 }
 
-void response_handler::handle_search_streams(const Json::Value& root)
+void response_printer::print_search_streams(const Json::Value& root)
 {
     auto streams = root["streams"];
     
@@ -161,7 +204,7 @@ void response_handler::handle_search_streams(const Json::Value& root)
     }
 }
 
-void response_handler::handle_streams(const Json::Value& root)
+void response_printer::print_streams(const Json::Value& root)
 {
     auto stream = root["stream"];
     
@@ -175,7 +218,7 @@ void response_handler::handle_streams(const Json::Value& root)
     }
 }
 
-void response_handler::print_channel_full(const Json::Value &channel)
+void response_printer::print_channel_full(const Json::Value &channel)
 {
     const auto name     = channel["name"].asString();
     const auto status   = channel["status"].asString();
@@ -196,19 +239,22 @@ void response_handler::print_channel_full(const Json::Value &channel)
               << "      Language : " << language    << std::endl;    
 }
 
-void response_handler::print_channel_short(const Json::Value &channel)
+void response_printer::print_channel_short(const Json::Value &channel)
 {
-    const auto name = channel["name"].asString();
-    const auto game = channel["game"].asString();
+    auto name = channel["name"].asString();
+    auto game = channel["game"].asString();
     const auto url  = channel["url"].asString();
     
-    std::cout << "  " << std::setw(_max_name_str_len) << std::left << name
-              << "  " << std::setw(_max_game_str_len) << std::left << game
+    trim_string(name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_name_len) << std::left << name
+              << "  " << std::setw(_game_len) << std::left << game
               << "  " << url << std::endl;
 }
 
 
-void response_handler::print_stream_full(const Json::Value &stream)
+void response_printer::print_stream_full(const Json::Value &stream)
 {
     const auto chan = stream["channel"];
     
@@ -218,36 +264,39 @@ void response_handler::print_stream_full(const Json::Value &stream)
     const auto id      = stream["_id"].asUInt64();
     const auto game    = stream["game"].asString();
     
-    std::cout << "  Stream [ " << name << " ]:" << "\n"
+    std::cout << "  Stream [ " << name << " ]:"   << "\n"
               << "      Url     : " << url        << "\n"
               << "      Viewers : " << viewers    << "\n"
               << "      Id      : " << id         << "\n"
               << "      Game    : " << game       << std::endl;
 }
 
-void response_handler::print_stream_short(const Json::Value &stream)
+void response_printer::print_stream_short(const Json::Value &stream)
 {
     const auto channel = stream["channel"];
     
-    const auto name    = channel["name"].asString();
+    auto name    = channel["name"].asString();
     const auto url     = channel["url"].asString();
     const auto viewers = stream["viewers"].asInt();
-    const auto game    = stream["game"].asString();
+    auto game    = stream["game"].asString();
     
-    std::cout << "  " << std::setw(11)                << std::right << viewers
-              << "  " << std::setw(_max_name_str_len) << std::left  << name
-              << "  " << std::setw(_max_game_str_len) << std::left << game
+    trim_string(name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_int_len)  << std::right << viewers
+              << "  " << std::setw(_name_len) << std::left  << name
+              << "  " << std::setw(_game_len) << std::left << game
               << "  " << url << std::endl;
 }
 
-void response_handler::print_top(const Json::Value &top)
+void response_printer::print_top_game(const Json::Value &top)
 {
     const auto viewers  = top["viewers"].asInt();
     const auto channels = top["channels"].asInt();
     const auto game     = top["game"]["name"].asString();
     
     
-    std::cout << "  "  << std::setw(11) << std::right << viewers 
-              << " / " << std::setw(11) << std::right << channels 
+    std::cout << "  "  << std::setw(_int_len) << std::right << viewers 
+              << " / " << std::setw(_int_len) << std::right << channels 
               << "  "  << game  << std::endl;
 }

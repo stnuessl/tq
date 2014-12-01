@@ -12,7 +12,7 @@ Just have a look at the [twitch.tv](www.twitch.tv) website. I find it way too sl
 and I always end up hitting the wrong buttons because the website is still 
 rearranging stuff which is really annoying. Also, I prefer watching twitch using 
 [livestreamer](http://livestreamer.readthedocs.org/en/latest/#) and vlc.
-I wanted a tool which lets me track my prefered channels and players without
+I wanted a tool which lets me track my prefered streams without
 using the website and an twitch account and therefore created tq.
 
 ## Installation
@@ -38,7 +38,7 @@ On Arch Linux you will need the following packages:
 
 * [curl](https://www.archlinux.org/packages/core/x86_64/curl/)
 * [jsoncpp](https://www.archlinux.org/packages/extra/x86_64/jsoncpp/)
-* [boost](https://https://www.archlinux.org/packages/extra/x86_64/boost/)
+* [boost](https://www.archlinux.org/packages/extra/x86_64/boost/)
 
 Run the following command to install them.
 
@@ -46,9 +46,18 @@ Run the following command to install them.
  # pacman -Syu curl jsoncpp boost
 ```
 
-#### Debian
+#### Debian (Jessie)
 
-install the following packages:
+If using Debian you will need to install the following packages:
+
+* [libcurl4-openssl-dev](https://packages.debian.org/de/jessie/libcurl4-openssl-dev)
+* [libjsoncpp-dev](https://packages.debian.org/de/jessie/libjsoncpp-dev)
+* [libboost-program-options-dev](https://packages.debian.org/de/jessie/libboost-program-options-dev)
+* [libboost-filesystem-dev](https://packages.debian.org/de/jessie/libboost-filesystem-dev)
+* [libboost-system-dev](https://packages.debian.org/de/jessie/libboost-system-dev)
+
+Run the following command to install them:
+
 ```
 # apt-get install libcurl4-openssl-dev libjsoncpp-dev libboost-program-options-dev libboost-filesystem-dev libboost-system-dev
 ``` 
@@ -82,7 +91,8 @@ Note that the last command is run as user __root__.
 
 ## Usage
 
-TODO
+TODO / Run tq --help
+
 
 ## Bugs and bug reports
 
