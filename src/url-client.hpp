@@ -34,6 +34,7 @@ public:
 private:
     static bool _libcurl_init;
     
+    std::string _header;
     std::string _response;
     CURL *_curl;
     struct curl_slist *_curl_slist;

@@ -171,9 +171,8 @@ int main(int argc, char *argv[])
             q.set_limit(args.limit);
         
         for (const auto &x : arg_vec) {
-            
-            if (!x.second.empty())
-                q.set_name(x.second);
+
+            q.set_name(x.second);
 
             auto response = q.get_response(x.first);
             

@@ -24,7 +24,7 @@ static size_t gather_response(char *p,
 url_client::url_client(const std::string &url)
 : _curl_slist(nullptr)
 {
-    const static char header[] = "Accept: application/vnd.twitchtv.v2+json";
+    const static char header[] = "Accept: application/vnd.twitchtv.v3+json";
     
     if (!_libcurl_init) {
         auto err = curl_global_init(CURL_GLOBAL_SSL);
@@ -47,6 +47,7 @@ url_client::url_client(const std::string &url)
     curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curl_slist);
     curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &gather_response);
+    curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_header);
     curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
 }
 
@@ -58,6 +59,7 @@ url_client::~url_client()
 
 std::string url_client::get_response()
 {
+    _header.clear();
     _response.clear();
     
     auto ok = curl_easy_perform(_curl);
@@ -70,5 +72,9 @@ std::string url_client::get_response()
         err += curl_easy_strerror(ok);
         throw std::runtime_error(err);
     }
+    
+    if (_header.find("Content-Type: application/json") == std::string::npos)
+        throw std::runtime_error("Server sent invalid MIME type:\n" + _header);
+        
     return std::move(_response);
 }
