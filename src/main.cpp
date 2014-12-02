@@ -74,7 +74,8 @@ std::string config(home + "/.config/tq/tq.conf");
 
 int main(int argc, char *argv[])
 {
-    opt::options_description desc("Available commands");
+    std::string usage("Usage: " + std::string(argv[0]) + " option [arg]");
+    opt::options_description desc(usage + "\nOptions");
     args args;
 
     desc.add_options()

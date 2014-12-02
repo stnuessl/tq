@@ -1,10 +1,24 @@
 # tq - Twitch Query
 
-Project is currently in development.
+tq is a simple and easy to use command-line tool to query information about
+streams and channels on the [twitch.tv](www.twitch.tv) website.
 
 ## Overview
 
-TODO
+* [Why tq?](https://github.com/stnuessl/tq#why-tq)
+* [Installation](https://github.com/stnuessl/tq#installation)
+    * [Dependencies](https://github.com/stnuessl/tq#dependencies)
+        * [Arch Linux](https://github.com/stnuessl/tq#arch-linux)
+        * [Debian](https://github.com/stnuessl/tq#debian-jessie)
+        * [Fedora](https://github.com/stnuessl/tq#fedora)
+    * [Compiling tq](https://github.com/stnuessl/tq#compiling-tq)
+* [Usage](https://github.com/stnuessl/tq#usage)
+    * [Get help](https://github.com/stnuessl/tq#get-help)
+    * [Query top played games](https://github.com/stnuessl/tq#query-top-played-games)
+    * [Query featured streams](https://github.com/stnuessl/tq#query-featured-streams)
+    * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel-/-stream)
+    * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels-/-streams-/-games)
+* [Bugs and bug reports](https://github.com/stnuessl/tq#bugs-and-bug-reports)
 
 ## Why tq?
 
@@ -50,11 +64,11 @@ Run the following command to install them.
 
 If using Debian you will need to install the following packages:
 
-* [libcurl4-openssl-dev](https://packages.debian.org/de/jessie/libcurl4-openssl-dev)
-* [libjsoncpp-dev](https://packages.debian.org/de/jessie/libjsoncpp-dev)
-* [libboost-program-options-dev](https://packages.debian.org/de/jessie/libboost-program-options-dev)
-* [libboost-filesystem-dev](https://packages.debian.org/de/jessie/libboost-filesystem-dev)
-* [libboost-system-dev](https://packages.debian.org/de/jessie/libboost-system-dev)
+* [libcurl4-openssl-dev](https://packages.debian.org/en/jessie/libcurl4-openssl-dev)
+* [libjsoncpp-dev](https://packages.debian.org/en/jessie/libjsoncpp-dev)
+* [libboost-program-options-dev](https://packages.debian.org/en/jessie/libboost-program-options-dev)
+* [libboost-filesystem-dev](https://packages.debian.org/en/jessie/libboost-filesystem-dev)
+* [libboost-system-dev](https://packages.debian.org/en/jessie/libboost-system-dev)
 
 Run the following command to install them:
 
@@ -101,8 +115,68 @@ Note that the last command is run as user __root__.
 
 ## Usage
 
-TODO / Run tq --help
+This section describes the basic usage of tq.
 
+### Get help
+
+Run just __tq__ or __tq --help__ to get a list of available commands and a
+short description. Example:
+
+```
+    $ tq --help
+```
+
+### Query top played games
+
+Run the following command to get a list of the currently most played games
+
+```
+    $ tq --top
+```
+
+Alternatively, you can just run __tq -t__.
+
+### Query featured streams
+
+Twitch has always a list of featured streams on their website. You can get
+this list by running:
+
+```
+    $ tq --featured
+```
+
+### Retrieve information about a channel / stream
+
+To get information about a channel run:
+
+```
+    $ tq -C [channel-name]
+```
+Note that this does not tell you whether the channel's stream is online.
+
+For informations about a stream, run:
+
+```
+    $ tq -S [stream-name]
+```
+
+However, to be able to retrieve information, the stream has to be online.
+
+### Search for channels / streams / games
+
+Sometimes it happens that you do not know the exact name of a channel, a stream or
+even a game. tq can help you by issuing a search request to the server with a 
+search string. In the Following are three examples to search for channels, streams 
+and games respectively:
+
+```
+    $ tq -c [name]
+    $ tq -s [name]
+    $ tq -g [name]
+```
+
+Probably, the most useful command is searching for streams that features a game of
+your choice. __tq -s__ automatically searchs for such streams too.
 
 ## Bugs and bug reports
 
