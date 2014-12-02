@@ -64,7 +64,17 @@ Run the following command to install them:
 
 #### Fedora
 
-TODO
+If you are using Fedora you will need to install the following packages:
+
+* [boost-devel](http://rpmfind.net/linux/rpm2html/search.php?query=boost-devel)
+* [jsoncpp-devel](http://rpmfind.net/linux/rpm2html/search.php?query=jsoncpp-devel)
+* [libcurl-devel](http://rpmfind.net/linux/rpm2html/search.php?query=libcurl-devel)
+
+Run the following command to install them:
+
+```
+# yum install boost-devel jsoncpp-devel libcurl-devel
+``` 
 
 ### Compiling tq
 
