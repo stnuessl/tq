@@ -16,8 +16,8 @@ streams and channels on the [twitch.tv](www.twitch.tv) website.
     * [Get help](https://github.com/stnuessl/tq#get-help)
     * [Query top played games](https://github.com/stnuessl/tq#query-top-played-games)
     * [Query featured streams](https://github.com/stnuessl/tq#query-featured-streams)
-    * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel-/-stream)
-    * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels-/-streams-/-games)
+    * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel--stream)
+    * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels--streams--games)
 * [Bugs and bug reports](https://github.com/stnuessl/tq#bugs-and-bug-reports)
 
 ## Why tq?
