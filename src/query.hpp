@@ -49,8 +49,9 @@ public:
     
     response get_response(query::type type);
 private:
-    url_client _client;
     std::string base_url(query::type type);
+    
+    url_client _client;
     
     std::string _name;
     unsigned int _limit;

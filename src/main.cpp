@@ -54,7 +54,7 @@
 #define VAL(arg)                                                               \
     opt::value((arg))
     
-#define VAL_MUL(arg)                                                     \
+#define VAL_MUL(arg)                                                           \
     opt::value((arg))->multitoken()
 
 struct args {
