@@ -27,7 +27,8 @@
 
 
 query::query()
-    : _name(),
+    : _client(),
+      _name(),
       _limit(10),
       _live(false)
 {
@@ -60,7 +61,7 @@ void query::set_live(bool live)
     _live = live;
 }
 
-std::pair< query::type, std::string > query::get_response(query::type type)
+std::pair<query::type, std::string> query::get_response(query::type type)
 {
     if (type != TYPE_TOP && type != TYPE_FEATURED && _name.empty())
         throw std::runtime_error("No string to query specified.");
@@ -100,7 +101,9 @@ std::pair< query::type, std::string > query::get_response(query::type type)
         throw std::runtime_error("Invalid query::type specified.");
     }
     
-    return std::make_pair(type, url_client(url).get_response());
+    _client.set_url(url);
+    
+    return std::make_pair(type, _client.get_response());
 }
 
 std::string query::base_url(query::type type)

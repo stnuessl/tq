@@ -18,6 +18,7 @@ streams and channels on the [twitch.tv](www.twitch.tv) website.
     * [Query featured streams](https://github.com/stnuessl/tq#query-featured-streams)
     * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel--stream)
     * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels--streams--games)
+    * [Note bene](https://github.com/stnuessl/tq#nota-bene)
 * [Bugs and bug reports](https://github.com/stnuessl/tq#bugs-and-bug-reports)
 
 ## Why tq?
@@ -25,9 +26,10 @@ streams and channels on the [twitch.tv](www.twitch.tv) website.
 Just have a look at the [twitch.tv](www.twitch.tv) website. I find it way too slow 
 and I always end up hitting the wrong buttons because the website is still 
 rearranging stuff which is really annoying. Also, I prefer watching twitch using 
-[livestreamer](http://livestreamer.readthedocs.org/en/latest/#) and vlc.
-I wanted a tool which lets me track my prefered streams without
-using the website and an twitch account and therefore created tq.
+[livestreamer](https://livestreamer.readthedocs.org/en/latest/) and 
+[vlc](http://www.videolan.org/vlc/). I wanted a tool which lets me track my 
+prefered streams without using the website and an twitch account and therefore 
+created tq.
 
 ## Installation
 
@@ -115,7 +117,9 @@ Note that the last command is run as user __root__.
 
 ## Usage
 
-This section describes the basic usage of tq.
+This section describes the basic usage of tq. However, not all commands are
+listed here, so you should always have a look at the built in __--help__ command
+which is also described in the following.
 
 ### Get help
 
@@ -126,6 +130,8 @@ short description. Example:
     $ tq --help
 ```
 
+Note that for most commands there are also short options available.
+
 ### Query top played games
 
 Run the following command to get a list of the currently most played games
@@ -133,8 +139,6 @@ Run the following command to get a list of the currently most played games
 ```
     $ tq --top
 ```
-
-Alternatively, you can just run __tq -t__.
 
 ### Query featured streams
 
@@ -177,6 +181,17 @@ and games respectively:
 
 Probably, the most useful command is searching for streams that features a game of
 your choice. __tq -s__ automatically searchs for such streams too.
+
+### Note bene
+
+All options except __--limit__ are able to take multiple arguments, e.g.
+e.g.
+
+```
+    $ tq -C channel1 channel2 channel3
+```
+
+will print out information about all three channels.
 
 ## Bugs and bug reports
 

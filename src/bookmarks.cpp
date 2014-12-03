@@ -39,23 +39,39 @@ bookmarks::~bookmarks()
 
 void bookmarks::add(const std::string &name)
 {
+    add(std::vector<std::string>({ name }));
+}
+
+void bookmarks::add(const std::vector<std::string> &names)
+{
     std::set<std::string> set;
     
     auto favs = read_bookmarks();
     
-    favs.emplace_back(name);
+    for (auto &x : names)
+        favs.emplace_back(x);
     
     write_bookmarks(favs, set);
 }
 
+
 void bookmarks::remove(const std::string &name)
 {
-    std::set<std::string> set ({ name });
+    remove(std::vector<std::string> ({ name }));
+}
+
+void bookmarks::remove(const std::vector<std::string> &names)
+{
+    std::set<std::string> set;
+    
+    for (auto &x : names)
+        set.emplace(x);
     
     auto favs = read_bookmarks();
     
     write_bookmarks(favs, set);
 }
+
 
 void bookmarks::check(response_printer &printer)
 {

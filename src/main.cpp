@@ -51,14 +51,20 @@
 #define DESC_TOP      "Get a list of the currently top played games."
 #define DESC_VERBOSE  "Retrieve more information about queried items."
 
+#define VAL(arg)                                                               \
+    opt::value((arg))
+    
+#define VAL_MUL(arg)                                                     \
+    opt::value((arg))->multitoken()
+
 struct args {
-    std::string add;
-    std::string remove;
-    std::string channel;
-    std::string s_channels;
-    std::string s_games;
-    std::string s_streams;
-    std::string stream;
+    std::vector<std::string> adds;
+    std::vector<std::string> removes;
+    std::vector<std::string> channels;
+    std::vector<std::string> s_channels;
+    std::vector<std::string> s_games;
+    std::vector<std::string> s_streams;
+    std::vector<std::string> streams;
     bool live;
     bool json;
     bool verbose;
@@ -74,27 +80,30 @@ std::string config(home + "/.config/tq/tq.conf");
 
 int main(int argc, char *argv[])
 {
-    std::string usage("Usage: " + std::string(argv[0]) + " option [arg]");
+    std::string usage("Usage: ");
+    usage += std::string(argv[0]);
+    usage += " option1 [arg1][arg2]... option2 [arg1]...\n";
+    
     opt::options_description desc(usage + "\nOptions");
     args args;
 
     desc.add_options()
-        ("add-bookmark,a",    opt::value(&args.add),        DESC_ADD_B)
-        ("channels,C",        opt::value(&args.channel),    DESC_CHANNELS)
-        ("check-bookmarks,b",                               DESC_CHECK_B)
-        ("featured,f",                                      DESC_FEATURED)
-        ("get-bookmarks",                                   DESC_GET_F)
-        ("help,h",                                          DESC_HELP)
-        ("json,j",                                          DESC_JSON)
-        ("limit",             opt::value(&args.limit),      DESC_LIMIT)
-        ("live",                                            DESC_LIVE)
-        ("remove-bookmark,r", opt::value(&args.remove),     DESC_REMOVE_B)
-        ("search-channels,c", opt::value(&args.s_channels), DESC_SEARCH_C)
-        ("search-games,g",    opt::value(&args.s_games),    DESC_SEARCH_G)
-        ("search-streams,s",  opt::value(&args.s_streams),  DESC_SEARCH_S)
-        ("streams,S",         opt::value(&args.stream),     DESC_STREAMS)
-        ("top,t",                                           DESC_TOP)
-        ("verbose,v",                                       DESC_VERBOSE);
+        ("add-bookmark,a",    VAL_MUL(&args.adds),       DESC_ADD_B)
+        ("channels,C",        VAL_MUL(&args.channels),   DESC_CHANNELS)
+        ("check-bookmarks,b",                            DESC_CHECK_B)
+        ("featured,f",                                   DESC_FEATURED)
+        ("get-bookmarks",                                DESC_GET_F)
+        ("help,h",                                       DESC_HELP)
+        ("json,j",                                       DESC_JSON)
+        ("limit",             VAL(&args.limit),          DESC_LIMIT)
+        ("live",                                         DESC_LIVE)
+        ("remove-bookmark,r", VAL_MUL(&args.removes),    DESC_REMOVE_B)
+        ("search-channels,c", VAL_MUL(&args.s_channels), DESC_SEARCH_C)
+        ("search-games,g",    VAL_MUL(&args.s_games),    DESC_SEARCH_G)
+        ("search-streams,s",  VAL_MUL(&args.s_streams),  DESC_SEARCH_S)
+        ("streams,S",         VAL_MUL(&args.streams),    DESC_STREAMS)
+        ("top,t",                                        DESC_TOP)
+        ("verbose,v",                                    DESC_VERBOSE);
 
     try {
         opt::variables_map argv_map;
@@ -121,16 +130,16 @@ int main(int argc, char *argv[])
             std::cout << bookmarks;
         
         if (argv_map.count("add-bookmark"))
-            bookmarks.add(args.add);
+            bookmarks.add(args.adds);
         
         if (argv_map.count("remove-bookmark"))
-            bookmarks.remove(args.add);
+            bookmarks.remove(args.removes);
 
         std::vector<std::pair<query::type, std::string>> arg_vec;
         
         if (argv_map.count("channels")) {
-            auto pair = std::make_pair(query::TYPE_CHANNELS, args.channel);
-            arg_vec.push_back(pair);
+            for (const auto &x : args.channels)
+                arg_vec.push_back(std::make_pair(query::TYPE_CHANNELS, x));
         }
         
         if (argv_map.count("featured")) {
@@ -139,23 +148,23 @@ int main(int argc, char *argv[])
         }
         
         if (argv_map.count("search-channels")) {
-            auto pair = std::make_pair(query::TYPE_SEARCH_C, args.s_channels);
-            arg_vec.push_back(pair);
+            for (const auto &x : args.s_channels)
+                arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_C, x));
         }
         
         if (argv_map.count("search-games")) {
-            auto pair = std::make_pair(query::TYPE_SEARCH_G, args.s_games);
-            arg_vec.push_back(pair);
+            for (const auto &x : args.s_games)
+                arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_G, x));                
         }
             
         if (argv_map.count("search-streams")) {
-            auto pair = std::make_pair(query::TYPE_SEARCH_S, args.s_streams);
-            arg_vec.push_back(pair);
+            for (const auto &x : args.s_streams)
+                arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_S, x));
         }
         
         if (argv_map.count("streams")) {
-            auto pair = std::make_pair(query::TYPE_STREAMS, args.stream);
-            arg_vec.push_back(pair);
+            for (const auto &x : args.streams)
+                arg_vec.push_back(std::make_pair(query::TYPE_STREAMS, x));
         }
         
         if (argv_map.count("top")) {

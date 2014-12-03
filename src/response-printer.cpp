@@ -241,8 +241,8 @@ void response_printer::print_channel_full(const Json::Value &channel)
 
 void response_printer::print_channel_short(const Json::Value &channel)
 {
-    auto name = channel["name"].asString();
-    auto game = channel["game"].asString();
+    auto name       = channel["name"].asString();
+    auto game       = channel["game"].asString();
     const auto url  = channel["url"].asString();
     
     trim_string(name, _name_len);
@@ -275,10 +275,10 @@ void response_printer::print_stream_short(const Json::Value &stream)
 {
     const auto channel = stream["channel"];
     
-    auto name    = channel["name"].asString();
+    auto name          = channel["name"].asString();
     const auto url     = channel["url"].asString();
     const auto viewers = stream["viewers"].asInt();
-    auto game    = stream["game"].asString();
+    auto game          = stream["game"].asString();
     
     trim_string(name, _name_len);
     trim_string(game, _game_len);
