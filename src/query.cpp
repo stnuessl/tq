@@ -32,12 +32,6 @@ query::query()
       _limit(10),
       _live(false)
 {
-
-}
-
-query::~query()
-{
-    
 }
 
 void query::set_name(const std::string &str)

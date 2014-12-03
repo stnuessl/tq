@@ -31,7 +31,6 @@
 class bookmarks : public file {
 public:
     explicit bookmarks(const std::string &path);
-    ~bookmarks();
     
     void add(const std::string &name);
     void add(const std::vector<std::string> &names);

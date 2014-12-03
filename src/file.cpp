@@ -46,11 +46,6 @@ file::file(const std::string &path)
     }
 }
 
-file::~file()
-{
-
-}
-
 const char *file::c_str() const
 {
     return _path.c_str();

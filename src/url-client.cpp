@@ -22,7 +22,7 @@ static size_t gather_response(char *p,
 }
 
 url_client::url_client()
-: _curl_slist(nullptr)
+    : _curl_slist(nullptr)
 {
     const static char header[] = "Accept: application/vnd.twitchtv.v3+json";
     

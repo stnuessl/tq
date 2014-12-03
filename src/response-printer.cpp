@@ -92,11 +92,6 @@ response_printer::response_printer(const std::string &config, bool json,
     }
 }
 
-response_printer::~response_printer()
-{
-
-}
-
 void response_printer::print_response(const query::response &response)
 {
     Json::Value root;

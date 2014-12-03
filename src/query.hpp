@@ -28,9 +28,6 @@
 
 class query {
 public:
-    explicit query();
-    ~query();
-    
     enum type {
         TYPE_CHANNELS,
         TYPE_FEATURED,
@@ -40,6 +37,8 @@ public:
         TYPE_STREAMS,
         TYPE_TOP,
     };
+    
+    explicit query();
     
     void set_name(const std::string &str);
     void set_limit(unsigned int limit);

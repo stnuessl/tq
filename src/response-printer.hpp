@@ -34,7 +34,6 @@ class response_printer : public file {
 public:
     explicit response_printer(const std::string &config, bool json = false,
                               bool verbose = false);
-    ~response_printer();
     
     void print_response(const query::response &response);
 private:

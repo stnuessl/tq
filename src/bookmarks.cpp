@@ -33,10 +33,6 @@ bookmarks::bookmarks(const std::string &path)
 {
 }
 
-bookmarks::~bookmarks()
-{
-}
-
 void bookmarks::add(const std::string &name)
 {
     add(std::vector<std::string>({ name }));

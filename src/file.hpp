@@ -31,7 +31,6 @@ namespace fs = boost::filesystem;
 class file {
 public:
     explicit file(const std::string &path);
-    ~file();
 
     const char *c_str() const;
 private:
