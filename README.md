@@ -185,7 +185,6 @@ your choice. __tq -s__ automatically searchs for such streams too.
 ### Nota bene
 
 All options except __--limit__ are able to take multiple arguments, e.g.
-e.g.
 
 ```
     $ tq -C channel1 channel2 channel3
