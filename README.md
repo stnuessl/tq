@@ -18,7 +18,7 @@ streams and channels on the [twitch.tv](www.twitch.tv) website.
     * [Query featured streams](https://github.com/stnuessl/tq#query-featured-streams)
     * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel--stream)
     * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels--streams--games)
-    * [Note bene](https://github.com/stnuessl/tq#nota-bene)
+    * [Nota bene](https://github.com/stnuessl/tq#nota-bene)
 * [Bugs and bug reports](https://github.com/stnuessl/tq#bugs-and-bug-reports)
 
 ## Why tq?
@@ -182,7 +182,7 @@ and games respectively:
 Probably, the most useful command is searching for streams that features a game of
 your choice. __tq -s__ automatically searchs for such streams too.
 
-### Note bene
+### Nota bene
 
 All options except __--limit__ are able to take multiple arguments, e.g.
 e.g.
