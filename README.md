@@ -1,7 +1,7 @@
 # tq - Twitch Query
 
 tq is a simple and easy to use command-line tool to query information about
-streams and channels on the [twitch.tv](www.twitch.tv) website.
+streams and channels on the [twitch.tv](http://www.twitch.tv) website.
 
 ## Overview
 
@@ -23,7 +23,7 @@ streams and channels on the [twitch.tv](www.twitch.tv) website.
 
 ## Why tq?
 
-Just have a look at the [twitch.tv](www.twitch.tv) website. I find it way too slow 
+Just have a look at the [twitch.tv](http://www.twitch.tv) website. I find it way too slow 
 and I always end up hitting the wrong buttons because the website is still 
 rearranging stuff which is really annoying. Also, I prefer watching twitch using 
 [livestreamer](https://livestreamer.readthedocs.org/en/latest/) and 
