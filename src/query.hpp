@@ -48,7 +48,7 @@ public:
     
     response get_response(query::type type);
 private:
-    std::string base_url(query::type type);
+    static std::string base_url(query::type type);
     
     url_client _client;
     
