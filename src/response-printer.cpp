@@ -115,8 +115,8 @@ void response_printer::print_response(const query::response &response)
         auto code  = root["status"].asInt();
         auto error = root["error"].asString();
         
-        std::cerr << "Error: " << error << " / " << code << " - " << msg 
-                  << std::endl;
+        std::cerr << "** Received error: " << error << " / " << code 
+                  << " - " << msg << std::endl;
         return;
     }
     
@@ -131,17 +131,21 @@ void response_printer::print_response(const query::response &response)
 
 void response_printer::print_top(const Json::Value &root)
 {
+    std::cout << "[ Top ]:\n";
+    
     for (auto &x : root["top"])
         print_top_game(x);
 }
 
 void response_printer::print_channels(const Json::Value &root)
-{
+{    
     print_channel_full(root);
 }
 
 void response_printer::print_featured(const Json::Value& root)
 {
+    std::cout << "[ Featured ]:\n";
+    
     auto list = root["featured"];
 
     if (_verbose) {
@@ -161,6 +165,8 @@ void response_printer::print_featured(const Json::Value& root)
 
 void response_printer::print_search_channels(const Json::Value& root)
 {
+    std::cout << "[ Search Channels ]:\n";
+    
     auto channels = root["channels"];
     
     if (_verbose) {
@@ -174,6 +180,8 @@ void response_printer::print_search_channels(const Json::Value& root)
 
 void response_printer::print_search_games(const Json::Value& root)
 {
+    std::cout << "[ Search Games ]:\n";
+    
     auto games = root["games"];
     
     for (auto &x : games) {
@@ -188,6 +196,8 @@ void response_printer::print_search_games(const Json::Value& root)
 
 void response_printer::print_search_streams(const Json::Value& root)
 {
+    std::cout << "[ Search Streams ]:\n";
+    
     auto streams = root["streams"];
     
     if (_verbose) {
