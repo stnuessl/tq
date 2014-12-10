@@ -36,7 +36,7 @@ public:
     void add(const std::vector<std::string> &names);
     void remove(const std::string &name);
     void remove(const std::vector<std::string> &names);
-    void check(response_printer &handler);
+    void check(response_printer &handler, query &query);
     
     friend std::ostream &operator<<(std::ostream &o, const bookmarks &bm);
     

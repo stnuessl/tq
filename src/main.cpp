@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
     
     opt::options_description desc(usage + "\nOptions");
     args args;
+    query query;
 
     desc.add_options()
         ("add-bookmark,a",    VAL_MUL(&args.adds),       DESC_ADD_B)
@@ -124,7 +125,7 @@ int main(int argc, char *argv[])
         response_printer printer(config, args.json, args.verbose);
         
         if (argv_map.count("check-bookmarks"))
-            bookmarks.check(printer);
+            bookmarks.check(printer, query);
         
         if (argv_map.count("get-bookmarks"))
             std::cout << bookmarks;
@@ -171,20 +172,18 @@ int main(int argc, char *argv[])
             auto pair = std::make_pair(query::TYPE_TOP, std::string());
             arg_vec.push_back(pair);
         }
-
-        query q;
         
         if (args.live)
-            q.set_live(true);
+            query.set_live(true);
         
         if (argv_map.count("limit"))
-            q.set_limit(args.limit);
+            query.set_limit(args.limit);
         
         for (const auto &x : arg_vec) {
 
-            q.set_name(x.second);
+            query.set_name(x.second);
 
-            auto response = q.get_response(x.first);
+            auto response = query.get_response(x.first);
             
             printer.print_response(response);
         }
