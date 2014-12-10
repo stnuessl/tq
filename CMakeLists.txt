@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 2.6)
 project(tq)
 
 # add_definitions(-D_GNU_SOURCE)
-add_definitions(-Wall)
+add_definitions(-Wall -Wextra)
+#add_definitions(-Wpedantic -Weffc++)
 add_definitions(-O2 -DNDEBUG)
 #add_definitions(-g3)
 

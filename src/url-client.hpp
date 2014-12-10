@@ -28,10 +28,14 @@
 class url_client {
 public:
     explicit url_client();
+    url_client(url_client &client) = delete;
     ~url_client();
     
     void set_url(const std::string &url);
     std::string get_response();
+    
+    url_client &operator=(const url_client &client) = delete;
+    
 private:
     static bool _libcurl_init;
     
