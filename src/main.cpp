@@ -138,35 +138,30 @@ int main(int argc, char *argv[])
 
         std::vector<std::pair<query::type, std::string>> arg_vec;
         
-        if (argv_map.count("channels")) {
-            for (const auto &x : args.channels)
-                arg_vec.push_back(std::make_pair(query::TYPE_CHANNELS, x));
-        }
+        /* 
+         * Push all arguments into a single vector which will be handled 
+         * later on in a single for-loop. 
+         */
         
         if (argv_map.count("featured")) {
             auto pair = std::make_pair(query::TYPE_FEATURED, std::string());
             arg_vec.push_back(pair);
         }
         
-        if (argv_map.count("search-channels")) {
-            for (const auto &x : args.s_channels)
-                arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_C, x));
-        }
+        for (const auto &x : args.channels)
+            arg_vec.push_back(std::make_pair(query::TYPE_CHANNELS, x));
         
-        if (argv_map.count("search-games")) {
-            for (const auto &x : args.s_games)
-                arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_G, x));                
-        }
-            
-        if (argv_map.count("search-streams")) {
-            for (const auto &x : args.s_streams)
-                arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_S, x));
-        }
+        for (const auto &x : args.s_channels)
+            arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_C, x));
         
-        if (argv_map.count("streams")) {
-            for (const auto &x : args.streams)
-                arg_vec.push_back(std::make_pair(query::TYPE_STREAMS, x));
-        }
+        for (const auto &x : args.s_games)
+            arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_G, x));
+        
+        for (const auto &x : args.s_streams)
+            arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_S, x));
+        
+        for (const auto &x : args.streams)
+            arg_vec.push_back(std::make_pair(query::TYPE_STREAMS, x));
         
         if (argv_map.count("top")) {
             auto pair = std::make_pair(query::TYPE_TOP, std::string());
