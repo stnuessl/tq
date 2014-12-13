@@ -18,8 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
-#include <utility>
 #include <fstream>
 
 #include <boost/filesystem.hpp>

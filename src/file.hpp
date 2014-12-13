@@ -22,7 +22,6 @@
 #define _FILE_HPP_
 
 #include <string>
-#include <iostream>
 
 #include <boost/filesystem.hpp>
 

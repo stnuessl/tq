@@ -18,15 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <vector>
-#include <set>
-#include <string>
 #include <fstream>
 
 #include "query.hpp"
-#include "response-printer.hpp"
 #include "bookmarks.hpp"
-
 
 bookmarks::bookmarks(const std::string &path)
     : file(path)

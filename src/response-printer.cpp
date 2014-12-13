@@ -19,20 +19,15 @@
  */
 
 #include <string>
-#include <algorithm>
-#include <iostream>
 #include <iomanip>
 #include <cstring>
-#include <cmath>
 #include <fstream>
 
-#include <json/json.h>
 #include <json/writer.h>
 
 #include <boost/program_options.hpp>
 
 #include "response-printer.hpp"
-#include "query.hpp"
 
 namespace opt = boost::program_options;
 

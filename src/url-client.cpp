@@ -1,9 +1,6 @@
 
-#include <string>
 #include <utility>
 #include <stdexcept>
-
-#include <curl/curl.h>
 
 #include "url-client.hpp"
 

@@ -21,6 +21,7 @@
 #ifndef _BOOKMARKS_HPP_
 #define _BOOKMARKS_HPP_
 
+#include <string>
 #include <vector>
 #include <set>
 #include <ostream>
