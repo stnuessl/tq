@@ -94,59 +94,59 @@ response_printer::response_printer(const std::string &config, bool json,
 
 void response_printer::print_response(const query::response &response)
 {
-    Json::Value root;
+    Json::Value val;
     
     auto type = response.first;
     auto str  = response.second;
     
-    auto ok = _reader.parse(str, root, false);
+    auto ok = _reader.parse(str, val, false);
     if (!ok) {
         std::cerr << "Unable to parse response." << std::endl;
         return;
     }
     
     if (_json) {
-        Json::StyledStreamWriter().write(std::cout, root);
+        Json::StyledStreamWriter().write(std::cout, val);
         return;
     }
 
-    if (root.isMember("error")) {
-        auto msg   = root["message"].asString();
-        auto code  = root["status"].asInt();
-        auto error = root["error"].asString();
+    if (val.isMember("error")) {
+        auto msg   = val["message"].asString();
+        auto code  = val["status"].asInt();
+        auto error = val["error"].asString();
         
-        std::cerr << "** Received error: " << error << " / " << code 
-                  << " - " << msg << std::endl;
+        std::cerr << "** Received error message from server: " << error 
+                  << " / " << code << " - " << msg << std::endl;
         return;
     }
     
     try {
         auto f = _table[type];
         
-        (this->*f)(root);
+        (this->*f)(val);
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
 }
 
-void response_printer::print_top(const Json::Value &root)
+void response_printer::print_top(const Json::Value &val)
 {
     std::cout << "[ Top ]:\n";
     
-    for (auto &x : root["top"])
+    for (auto &x : val["top"])
         print_top_game(x);
 }
 
-void response_printer::print_channels(const Json::Value &root)
+void response_printer::print_channels(const Json::Value &val)
 {    
-    print_channel_full(root);
+    print_channel_full(val);
 }
 
-void response_printer::print_featured(const Json::Value& root)
+void response_printer::print_featured(const Json::Value& val)
 {
     std::cout << "[ Featured ]:\n";
     
-    auto list = root["featured"];
+    auto list = val["featured"];
 
     if (_verbose) {
         for (auto &x : list) {
@@ -163,11 +163,11 @@ void response_printer::print_featured(const Json::Value& root)
     }
 }
 
-void response_printer::print_search_channels(const Json::Value& root)
+void response_printer::print_search_channels(const Json::Value& val)
 {
     std::cout << "[ Search Channels ]:\n";
     
-    auto channels = root["channels"];
+    auto channels = val["channels"];
     
     if (_verbose) {
         for (auto &chan : channels)  
@@ -178,11 +178,11 @@ void response_printer::print_search_channels(const Json::Value& root)
     }   
 }
 
-void response_printer::print_search_games(const Json::Value& root)
+void response_printer::print_search_games(const Json::Value& val)
 {
     std::cout << "[ Search Games ]:\n";
     
-    auto games = root["games"];
+    auto games = val["games"];
     
     for (auto &x : games) {
         auto name = x["name"].asString();
@@ -194,11 +194,11 @@ void response_printer::print_search_games(const Json::Value& root)
     }
 }
 
-void response_printer::print_search_streams(const Json::Value& root)
+void response_printer::print_search_streams(const Json::Value& val)
 {
     std::cout << "[ Search Streams ]:\n";
     
-    auto streams = root["streams"];
+    auto streams = val["streams"];
     
     if (_verbose) {
         for (auto &s : streams)
@@ -209,12 +209,12 @@ void response_printer::print_search_streams(const Json::Value& root)
     }
 }
 
-void response_printer::print_streams(const Json::Value& root)
+void response_printer::print_streams(const Json::Value& val)
 {
-    auto stream = root["stream"];
+    auto stream = val["stream"];
     
     if (stream.isNull()) {
-        auto self = root["_links"]["self"].asCString();
+        auto self = val["_links"]["self"].asCString();
         auto name = std::strrchr(self, '/') + 1;
         
         std::cout << "  Stream [ " << name  << " ]: offline" << std::endl;

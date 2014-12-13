@@ -37,13 +37,13 @@ public:
     
     void print_response(const query::response &response);
 private:
-    void print_channels(const Json::Value &root);
-    void print_featured(const Json::Value &root);
-    void print_search_channels(const Json::Value &root);
-    void print_search_games(const Json::Value &root);
-    void print_search_streams(const Json::Value &root);
-    void print_streams(const Json::Value &root);
-    void print_top(const Json::Value &root);
+    void print_channels(const Json::Value &val);
+    void print_featured(const Json::Value &val);
+    void print_search_channels(const Json::Value &val);
+    void print_search_games(const Json::Value &val);
+    void print_search_streams(const Json::Value &val);
+    void print_streams(const Json::Value &val);
+    void print_top(const Json::Value &val);
     
     void print_channel_full(const Json::Value &channel);
     void print_channel_short(const Json::Value &channel);
