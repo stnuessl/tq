@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         auto parsed = opt::parse_command_line(argc, argv, desc);
         opt::store(parsed, argv_map);
         opt::notify(argv_map);
-                
+        
         if (argv_map.empty() || argv_map.count("help")) {
             std::cout << desc << std::endl;
             std::exit(EXIT_SUCCESS);
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
         for (const auto &x : arg_vec) {
 
             query.set_name(x.second);
-
+            
             auto response = query.get_response(x.first);
             
             printer.print_response(response);

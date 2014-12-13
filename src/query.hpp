@@ -44,7 +44,7 @@ public:
     void set_limit(unsigned int limit);
     void set_live(bool live);
     
-    typedef std::pair<query::type, std::string> response;
+    typedef std::pair<const query::type, const std::string> response;
     
     response get_response(query::type type);
 private:
