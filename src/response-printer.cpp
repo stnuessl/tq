@@ -182,9 +182,7 @@ void response_printer::print_search_games(const Json::Value& val)
 {
     std::cout << "[ Search Games ]:\n";
     
-    auto games = val["games"];
-    
-    for (auto &x : games) {
+    for (auto &x : val["games"]) {
         auto name = x["name"].asString();
         auto pop  = x["popularity"].asInt();
         
