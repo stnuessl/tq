@@ -37,6 +37,7 @@
 #define DESC_ADD_B    "Add a new bookmark."
 #define DESC_CHANNELS "Retrieve information about a channel."
 #define DESC_CHECK_B  "Check which bookmarks are streaming."
+#define DESC_DESC     "Print descriptive line headers, if applicable." 
 #define DESC_FEATURED "Query featured streams."
 #define DESC_GET_F    "Show all specified bookmarks."
 #define DESC_HELP     "Print this help message."
@@ -68,6 +69,7 @@ struct args {
     bool live;
     bool json;
     bool verbose;
+    bool info;
     unsigned int limit;
 };
 
@@ -92,6 +94,7 @@ int main(int argc, char *argv[])
         ("add-bookmark,a",    VAL_MUL(&args.adds),       DESC_ADD_B)
         ("channels,C",        VAL_MUL(&args.channels),   DESC_CHANNELS)
         ("check-bookmarks,b",                            DESC_CHECK_B)
+        ("descriptive,d",                                DESC_DESC)
         ("featured,f",                                   DESC_FEATURED)
         ("get-bookmarks",                                DESC_GET_F)
         ("help,h",                                       DESC_HELP)
@@ -121,8 +124,15 @@ int main(int argc, char *argv[])
         args.verbose = (argv_map.count("verbose") > 0);
         args.json    = (argv_map.count("json") > 0);
         args.live    = (argv_map.count("live") > 0);
+        args.info    = (argv_map.count("descriptive") > 0);
         
-        response_printer printer(config, args.json, args.verbose);
+        response_printer printer(config, args.json, args.verbose, args.info);
+        
+        if (argv_map.count("add-bookmark"))
+            bookmarks.add(args.adds);
+        
+        if (argv_map.count("remove-bookmark"))
+            bookmarks.remove(args.removes);
         
         if (argv_map.count("check-bookmarks"))
             bookmarks.check(printer, query);
@@ -130,12 +140,6 @@ int main(int argc, char *argv[])
         if (argv_map.count("get-bookmarks"))
             std::cout << bookmarks;
         
-        if (argv_map.count("add-bookmark"))
-            bookmarks.add(args.adds);
-        
-        if (argv_map.count("remove-bookmark"))
-            bookmarks.remove(args.removes);
-
         std::vector<std::pair<query::type, std::string>> arg_vec;
         
         /* 
@@ -175,7 +179,6 @@ int main(int argc, char *argv[])
             query.set_limit(args.limit);
         
         for (const auto &x : arg_vec) {
-
             query.set_name(x.second);
             
             auto response = query.get_response(x.first);

@@ -63,7 +63,7 @@ void bookmarks::remove(const std::vector<std::string> &names)
     write_bookmarks(favs, set);
 }
 
-void bookmarks::check(response_printer &handler, query &query)
+void bookmarks::check(response_printer &printer, query &query)
 {
     auto favs = read_bookmarks();
     
@@ -72,7 +72,7 @@ void bookmarks::check(response_printer &handler, query &query)
         
         auto r = query.get_response(query::TYPE_STREAMS);
         
-        handler.print_response(r);
+        printer.print_response(r);
     }
 }
 

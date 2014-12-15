@@ -15,6 +15,7 @@ streams and channels on the [twitch.tv](http://www.twitch.tv) website.
 * [Usage](https://github.com/stnuessl/tq#usage)
     * [Get help](https://github.com/stnuessl/tq#get-help)
     * [Query top played games](https://github.com/stnuessl/tq#query-top-played-games)
+    * [Get descriptive output](https://github.com/stnuessl/tq#get-descriptive-output)
     * [Query featured streams](https://github.com/stnuessl/tq#query-featured-streams)
     * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel--stream)
     * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels--streams--games)
@@ -139,6 +140,23 @@ Run the following command to get a list of the currently most played games
 ```
     $ tq --top
 ```
+
+### Get descriptive output
+
+If you do not know what the output of the program means you can 
+add the __--descriptive flag to the program arguments to get additional 
+information, e.g.:
+
+```
+    $ tq --top --descriptive
+```
+or just:
+```
+    $ tq -td
+```
+
+The __--informative__ flag works with all commands which print one line for each
+returned object (games, channels, streams).
 
 ### Query featured streams
 

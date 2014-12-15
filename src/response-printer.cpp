@@ -38,7 +38,7 @@ static void trim_string(std::string &str, unsigned int size)
 }
 
 response_printer::response_printer(const std::string &config, bool json,
-                                   bool verbose)
+                                   bool verbose, bool informative)
     : file(config),
       _table ({
           { query::TYPE_CHANNELS, &response_printer::print_channels          },
@@ -54,7 +54,8 @@ response_printer::response_printer(const std::string &config, bool json,
       _name_len(20),
       _game_len(40),
       _json(json),
-      _verbose(verbose)
+      _verbose(verbose),
+      _informative(informative)
 {
     opt::options_description desc;
     
@@ -101,7 +102,7 @@ void response_printer::print_response(const query::response &response)
     }
     
     if (_json) {
-        Json::StyledStreamWriter().write(std::cout, val);
+        Json::StyledStreamWriter("    ").write(std::cout, val);
         return;
     }
 
@@ -128,6 +129,9 @@ void response_printer::print_top(const Json::Value &val)
 {
     std::cout << "[ Top ]:\n";
     
+    if (_informative)
+        print_top_game_header();
+    
     for (auto &x : val["top"])
         print_top_game(x);
 }
@@ -150,12 +154,73 @@ void response_printer::print_featured(const Json::Value& val)
             print_stream_full(stream);
         }
     } else {
+        if (_informative)
+            print_stream_short_header();
+        
         for (auto &x : list) {
             auto stream = x["stream"];
 
             print_stream_short(stream);
         }
     }
+}
+
+void response_printer::print_channel_short_header() const
+{
+    std::string channel_name("Channel name"), game("Game");
+    
+    trim_string(channel_name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_name_len) << std::left << channel_name
+              << "  " << std::setw(_game_len) << std::left << game
+              << "  " << "URL\n" 
+              << std::setfill('-') << std::setw(_name_len + _game_len + 40)
+              << "" << std::setfill(' ') << std::endl;
+}
+
+void response_printer::print_stream_short_header() const
+{
+    auto line_len = _int_len + _name_len + _game_len + 40;
+    
+    std::string viewers("Viewers"), stream_name("Stream name"), game("Game");
+    
+    trim_string(viewers, _int_len);
+    trim_string(stream_name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_int_len)  << std::left << viewers
+              << "  " << std::setw(_name_len) << std::left << stream_name
+              << "  " << std::setw(_game_len) << std::left << game
+              << "  " << "URL\n"
+              << std::setfill('-') << std::setw(line_len)
+              << "" << std::setfill(' ') << std::endl;
+}
+
+void response_printer::print_top_game_header() const
+{
+    std::string viewers("Viewers"), channels("Channels");
+    
+    trim_string(viewers, _int_len);
+    trim_string(channels, _int_len);
+    
+    std::cout << "  " << std::setw(_int_len) << std::left << viewers
+              << "  " << std::setw(_int_len) << std::left << channels
+              << "  " << "Game\n"
+              << std::setfill('-') << std::setw(2 * _int_len + _game_len)
+              << "" << std::setfill(' ') << std::endl;
+}
+
+void response_printer::print_game_header() const
+{
+    std::string popularity("Popularity");
+    
+    trim_string(popularity, _int_len);
+    
+    std::cout << "  " << std::setw(_int_len) << std::left << popularity
+              << "  " << "Game\n"
+              << std::setfill('-') << std::setw(_int_len + _game_len)
+              << "" << std::setfill(' ') << std::endl;
 }
 
 void response_printer::print_search_channels(const Json::Value& val)
@@ -168,6 +233,9 @@ void response_printer::print_search_channels(const Json::Value& val)
         for (auto &chan : channels)  
             print_channel_full(chan);        
     } else {
+        if (_informative)
+            print_channel_short_header();
+        
         for (auto &chan : channels)
             print_channel_short(chan);
     }   
@@ -176,6 +244,9 @@ void response_printer::print_search_channels(const Json::Value& val)
 void response_printer::print_search_games(const Json::Value& val)
 {
     std::cout << "[ Search Games ]:\n";
+    
+    if (_informative)
+        print_game_header();
     
     for (auto &x : val["games"]) {
         auto name = x["name"].asString();
@@ -197,6 +268,9 @@ void response_printer::print_search_streams(const Json::Value& val)
         for (auto &s : streams)
             print_stream_full(s);
     } else {
+        if (_informative)
+            print_stream_short_header();
+        
         for (auto &s : streams)
             print_stream_short(s);
     }

@@ -35,7 +35,7 @@ file::file(const std::string &path)
     
     if (!fs::exists(_path)) {
         /* just create the file */
-        std::ofstream file(_path.c_str(), std::ios::out);
+        std::ofstream(_path.c_str(), std::ios::out);
     }
     
     if (!fs::is_regular_file(_path)) {

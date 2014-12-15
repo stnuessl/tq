@@ -33,7 +33,7 @@
 class response_printer : public file {
 public:
     explicit response_printer(const std::string &config, bool json = false,
-                              bool verbose = false);
+                              bool verbose = false, bool informative = false);
     
     void print_response(const query::response &response);
 private:
@@ -51,6 +51,11 @@ private:
     void print_stream_short(const Json::Value &stream);
     void print_top_game(const Json::Value &top);
     
+    void print_channel_short_header() const;
+    void print_stream_short_header() const;
+    void print_top_game_header() const;
+    void print_game_header() const;
+    
     typedef void (response_printer::*handler)(const Json::Value &);
         
     std::unordered_map<int, handler> _table;
@@ -63,6 +68,7 @@ private:
     
     bool _json;
     bool _verbose;
+    bool _informative;
 };
 
 #endif /* _RESPONSE_PRINTER_HPP_ */
