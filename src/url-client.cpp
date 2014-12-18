@@ -56,15 +56,12 @@ url_client::~url_client()
     curl_slist_free_all(_curl_slist);
 }
 
-void url_client::set_url(const std::string &url)
-{
-    curl_easy_setopt(_curl, CURLOPT_URL, url.c_str());
-}
-
-std::string url_client::get_response()
+std::string url_client::get_response(const std::string &url)
 {
     _header.clear();
     _response.clear();
+    
+    curl_easy_setopt(_curl, CURLOPT_URL, url.c_str());
     
     auto ok = curl_easy_perform(_curl);
     

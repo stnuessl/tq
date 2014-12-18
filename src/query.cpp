@@ -25,110 +25,103 @@
 
 #include "query.hpp"
 
+#define BASE_URL "https://api.twitch.tv/kraken/"
+
+const unsigned int query::default_limit = 10;
 
 query::query()
-    : _client(),
-      _name(),
-      _limit(10),
-      _live(false)
+    : _client()
 {
 }
 
-void query::set_name(const std::string &str)
+query::response query::channels(const std::string &name)
 {
-    _name = str;
+    std::string url(BASE_URL "channels/");
+    url += name;
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_CHANNELS, str);
 }
 
-void query::set_limit(unsigned int limit)
+query::response query::featured(unsigned int limit)
+{
+    std::string url(BASE_URL "streams/featured?limit=");
+    url += valid_limit_str(limit);
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_FEATURED, str);
+}
+
+query::response query::search_channels(const std::string &name, 
+                                       unsigned int limit)
+{
+    std::string url(BASE_URL "search/channels?q=");
+    url += name;
+    url += "&limit=";
+    url += valid_limit_str(limit);
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_SEARCH_C, str);
+}
+
+query::response query::search_games(const std::string &name, bool live)
+{
+    std::string url(BASE_URL "search/games?q=");
+    url += name;
+    url += "&type=suggest&live=";
+    url += (live) ? "true" : "false";
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_SEARCH_G, str);
+}
+
+
+query::response query::search_streams(const std::string &name, 
+                                      unsigned int limit)
+{
+    std::string url(BASE_URL "search/streams?q=");
+    url += name;
+    url += "&limit=";
+    url += valid_limit_str(limit);
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_SEARCH_S, str);
+}
+
+query::response query::streams(const std::string &name)
+{
+    std::string url(BASE_URL "streams/");
+    url += name;
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_STREAMS, str);
+}
+
+query::response query::top(unsigned int limit)
+{
+    std::string url(BASE_URL "games/top?limit=");
+    url += valid_limit_str(limit);
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_TOP, str);
+}
+
+const std::string query::valid_limit_str(unsigned int limit)
 {
     const static unsigned int min = 1;
     const static unsigned int max = 100;
     
+    /* A valid limit value has to be in range [1, 100] */
     limit = std::max(limit, min);
     limit = std::min(limit, max);
     
-    _limit = limit;
-}
-
-void query::set_live(bool live)
-{
-    _live = live;
-}
-
-query::response query::get_response(query::type type)
-{
-    if (type != TYPE_TOP && type != TYPE_FEATURED && _name.empty())
-        throw std::runtime_error("No string to query specified.");
-    
-    std::string limit = "limit=";
-    std::string live  = "live=";
-    
-    limit += std::to_string(_limit);
-    live  += (_live) ? "true" : "false";
-    
-    auto url = base_url(type);
-    
-    switch (type) {
-    case TYPE_CHANNELS:
-    case TYPE_STREAMS:
-        url += _name;
-        break;
-    case TYPE_FEATURED:
-    case TYPE_TOP:
-        url += "?";
-        url += limit;
-        break;
-    case TYPE_SEARCH_C:
-    case TYPE_SEARCH_S:
-        url += "?q=";
-        url += _name;
-        url += "&";
-        url += limit;
-        break;
-    case TYPE_SEARCH_G:
-        url += "?q=";
-        url += _name;
-        url += "&type=suggest&";
-        url += live;
-        break;
-    default:
-        throw std::runtime_error("Invalid query::type specified.");
-    }
-    
-    _client.set_url(url);
-    
-    return response(type, _client.get_response());
-}
-
-std::string query::base_url(query::type type)
-{
-#define BASE_URL "https://api.twitch.tv/kraken/"
-    std::string s;
-    
-    switch (type) {
-        case TYPE_CHANNELS:
-            s = std::string(BASE_URL "channels/");
-            break;
-        case TYPE_FEATURED:
-            s =  std::string(BASE_URL "streams/featured");
-            break;
-        case TYPE_SEARCH_C:
-            s = std::string(BASE_URL "search/channels");
-            break;
-        case TYPE_SEARCH_G:
-            s = std::string(BASE_URL "search/games");
-            break;
-        case TYPE_SEARCH_S:
-            s = std::string(BASE_URL "search/streams");
-            break;
-        case TYPE_STREAMS:
-            s = std::string(BASE_URL "streams/");
-            break;
-        case TYPE_TOP:
-            s = std::string(BASE_URL "games/top");
-            break;
-    }
-    
-    return s;
+    return std::to_string(limit);
 }
 

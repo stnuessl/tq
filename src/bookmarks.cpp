@@ -67,12 +67,10 @@ void bookmarks::check(response_printer &printer, query &query)
 {
     auto favs = read_bookmarks();
     
-    for (const auto &f : favs) {
-        query.set_name(f);
-        
-        auto r = query.get_response(query::TYPE_STREAMS);
-        
-        printer.print_response(r);
+    for (const auto &x : favs) {
+        auto response = query.streams(x);
+                
+        printer.print_response(response);
     }
 }
 

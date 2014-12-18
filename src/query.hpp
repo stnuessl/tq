@@ -38,23 +38,25 @@ public:
         TYPE_TOP,
     };
     
-    explicit query();
-    
-    void set_name(const std::string &str);
-    void set_limit(unsigned int limit);
-    void set_live(bool live);
-    
     typedef std::pair<const query::type, const std::string> response;
     
-    response get_response(query::type type);
+    static const unsigned int default_limit;
+    
+    explicit query();
+    
+    response channels(const std::string &name);
+    response featured(unsigned int limit = default_limit);
+    response search_channels(const std::string &name, 
+                             unsigned int limit = default_limit);
+    response search_games(const std::string &name, bool live = true);
+    response search_streams(const std::string &name,
+                            unsigned int limit = default_limit);
+    response streams(const std::string &name);
+    response top(unsigned int limit = default_limit);
 private:
-    static std::string base_url(query::type type);
-    
+    static const std::string valid_limit_str(unsigned int limit);
+
     url_client _client;
-    
-    std::string _name;
-    unsigned int _limit;
-    bool _live;
 };
 
 #endif /* _QUERY_HPP_ */

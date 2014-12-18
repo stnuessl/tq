@@ -89,6 +89,8 @@ int main(int argc, char *argv[])
     opt::options_description desc(usage + "\nOptions");
     args args;
     query query;
+    
+    args.limit = query::default_limit;
 
     desc.add_options()
         ("add-bookmark,a",    VAL_MUL(&args.adds),       DESC_ADD_B)
@@ -140,51 +142,33 @@ int main(int argc, char *argv[])
         if (argv_map.count("get-bookmarks"))
             std::cout << bookmarks;
         
-        std::vector<std::pair<query::type, std::string>> arg_vec;
+        std::vector<query::response> response_vec;
         
-        /* 
-         * Push all arguments into a single vector which will be handled 
-         * later on in a single for-loop. 
-         */
-        
-        if (argv_map.count("featured")) {
-            auto pair = std::make_pair(query::TYPE_FEATURED, std::string());
-            arg_vec.push_back(pair);
-        }
+        if (argv_map.count("featured"))
+            response_vec.push_back(query.featured(args.limit));
         
         for (const auto &x : args.channels)
-            arg_vec.push_back(std::make_pair(query::TYPE_CHANNELS, x));
+            response_vec.push_back(query.channels(x));
         
         for (const auto &x : args.s_channels)
-            arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_C, x));
+            response_vec.push_back(query.search_channels(x, args.limit));
         
         for (const auto &x : args.s_games)
-            arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_G, x));
+            response_vec.push_back(query.search_games(x, args.live));
         
         for (const auto &x : args.s_streams)
-            arg_vec.push_back(std::make_pair(query::TYPE_SEARCH_S, x));
+            response_vec.push_back(query.search_streams(x, args.limit));
         
         for (const auto &x : args.streams)
-            arg_vec.push_back(std::make_pair(query::TYPE_STREAMS, x));
+            response_vec.push_back(query.streams(x));
         
-        if (argv_map.count("top")) {
-            auto pair = std::make_pair(query::TYPE_TOP, std::string());
-            arg_vec.push_back(pair);
-        }
+        if (argv_map.count("top"))
+            response_vec.push_back(query.top(args.limit));
         
-        if (args.live)
-            query.set_live(true);
+        /* Print responses from server */
+        for (const auto &x : response_vec)
+            printer.print_response(x);
         
-        if (argv_map.count("limit"))
-            query.set_limit(args.limit);
-        
-        for (const auto &x : arg_vec) {
-            query.set_name(x.second);
-            
-            auto response = query.get_response(x.first);
-            
-            printer.print_response(response);
-        }
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
