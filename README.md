@@ -95,7 +95,7 @@ Run the following command to install them:
 
 ### Compiling tq
 
-To compile tq you will need to following tools:
+To compile tq you will need the following tools:
 
 * git
 * g++
