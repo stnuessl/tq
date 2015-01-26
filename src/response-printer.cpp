@@ -77,10 +77,10 @@ response_printer::response_printer(const std::string &config, bool json,
         if (conf_var_map.empty()) {
             std::ofstream file(config);
             
-            file << "[printer]\n";
-            file << "integer-length = " << _int_len     << "\n";
-            file << "name-length    = " << _name_len    << "\n";
-            file << "game-length    = " << _game_len    << "\n";
+            file << "[printer]\n"
+                 << "integer-length = " << _int_len     << "\n"
+                 << "name-length    = " << _name_len    << "\n"
+                 << "game-length    = " << _game_len    << "\n";
         }
         
     } catch (std::exception &e) {
