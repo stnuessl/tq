@@ -22,17 +22,16 @@
 #define _RESPONSE_PRINTER_HPP_
 
 #include <unordered_map>
-#include <iostream>
-#include <utility>
 
 #include <json/json.h>
 
 #include "query.hpp"
 #include "file.hpp"
+#include "config.hpp"
 
-class response_printer : public file {
+class response_printer {
 public:
-    explicit response_printer(const std::string &config, bool json = false,
+    explicit response_printer(const config &conf, bool json = false,
                               bool verbose = false, bool informative = false);
     
     void print_response(const query::response &response);

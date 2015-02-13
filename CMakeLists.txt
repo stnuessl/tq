@@ -20,19 +20,23 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 
 set(SRC 
+    src/bookmarks.cpp
+    src/config.cpp
+    src/file.cpp
     src/main.cpp
     src/query.cpp
-    src/url-client.cpp
     src/response-printer.cpp
-    src/bookmarks.cpp
-    src/file.cpp
+    src/stream-opener.cpp
+    src/url-client.cpp
     )
 
 # find_package(PkgConfig REQUIRED)
 
 find_package(CURL REQUIRED)
 find_package(JSONCPP REQUIRED)
-find_package(Boost 1.40 COMPONENTS program_options filesystem system REQUIRED)
+find_package(Boost 1.40 
+             COMPONENTS program_options filesystem system
+             REQUIRED)
 
 
 # <XPREFIX>_FOUND          ... set to 1 if module(s) exist

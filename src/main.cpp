@@ -33,6 +33,7 @@
 #include "query.hpp"
 #include "response-printer.hpp"
 #include "bookmarks.hpp"
+#include "stream-opener.hpp"
 
 #define DESC_ADD_B    "Add a new bookmark."
 #define DESC_CHANNELS "Retrieve information about a channel."
@@ -51,6 +52,7 @@
 #define DESC_STREAMS  "Retrieve information about a steam. Stream must be live."
 #define DESC_TOP      "Get a list of the currently top played games."
 #define DESC_VERBOSE  "Retrieve more information about queried items."
+#define DESC_OPEN     "Open the stream for watching."
 
 #define VAL(arg)                                                               \
     opt::value((arg))
@@ -59,13 +61,14 @@
     opt::value((arg))->multitoken()
 
 struct args {
-    std::vector<std::string> adds;
-    std::vector<std::string> removes;
-    std::vector<std::string> channels;
-    std::vector<std::string> s_channels;
-    std::vector<std::string> s_games;
-    std::vector<std::string> s_streams;
-    std::vector<std::string> streams;
+    std::vector<std::string> add_vec;
+    std::vector<std::string> remove_vec;
+    std::vector<std::string> channel_vec;
+    std::vector<std::string> s_channel_vec;
+    std::vector<std::string> s_game_vec;
+    std::vector<std::string> s_stream_vec;
+    std::vector<std::string> stream_vec;
+    std::vector<std::string> open_vec;
     bool live;
     bool json;
     bool verbose;
@@ -78,7 +81,7 @@ namespace opt = boost::program_options;
 const std::string home(std::getenv("HOME"));
 
 bookmarks bookmarks(home + "/.config/tq/bookmarks");
-std::string config(home + "/.config/tq/tq.conf");
+config config(home + "/.config/tq/tq.conf");
 
 int main(int argc, char *argv[])
 {
@@ -89,27 +92,29 @@ int main(int argc, char *argv[])
     opt::options_description desc(usage + "\nOptions");
     args args;
     query query;
+    stream_opener stream_opener(config);
     
     args.limit = query::default_limit;
 
     desc.add_options()
-        ("add-bookmark,a",    VAL_MUL(&args.adds),       DESC_ADD_B)
-        ("channels,C",        VAL_MUL(&args.channels),   DESC_CHANNELS)
-        ("check-bookmarks,b",                            DESC_CHECK_B)
-        ("descriptive,d",                                DESC_DESC)
-        ("featured,f",                                   DESC_FEATURED)
-        ("get-bookmarks",                                DESC_GET_F)
-        ("help,h",                                       DESC_HELP)
-        ("json,j",                                       DESC_JSON)
-        ("limit",             VAL(&args.limit),          DESC_LIMIT)
-        ("live",                                         DESC_LIVE)
-        ("remove-bookmark,r", VAL_MUL(&args.removes),    DESC_REMOVE_B)
-        ("search-channels,c", VAL_MUL(&args.s_channels), DESC_SEARCH_C)
-        ("search-games,g",    VAL_MUL(&args.s_games),    DESC_SEARCH_G)
-        ("search-streams,s",  VAL_MUL(&args.s_streams),  DESC_SEARCH_S)
-        ("streams,S",         VAL_MUL(&args.streams),    DESC_STREAMS)
-        ("top,t",                                        DESC_TOP)
-        ("verbose,v",                                    DESC_VERBOSE);
+        ("add-bookmark,a",    VAL_MUL(&args.add_vec),       DESC_ADD_B)
+        ("channels,C",        VAL_MUL(&args.channel_vec),   DESC_CHANNELS)
+        ("check-bookmarks,b",                               DESC_CHECK_B)
+        ("descriptive,d",                                   DESC_DESC)
+        ("featured,f",                                      DESC_FEATURED)
+        ("get-bookmarks",                                   DESC_GET_F)
+        ("help,h",                                          DESC_HELP)
+        ("json,j",                                          DESC_JSON)
+        ("limit",             VAL(&args.limit),             DESC_LIMIT)
+        ("live",                                            DESC_LIVE)
+        ("open,o",            VAL_MUL(&args.open_vec),      DESC_OPEN)
+        ("remove-bookmark,r", VAL_MUL(&args.remove_vec),    DESC_REMOVE_B)
+        ("search-channels,c", VAL_MUL(&args.s_channel_vec), DESC_SEARCH_C)
+        ("search-games,g",    VAL_MUL(&args.s_game_vec),    DESC_SEARCH_G)
+        ("search-streams,s",  VAL_MUL(&args.s_stream_vec),  DESC_SEARCH_S)
+        ("streams,S",         VAL_MUL(&args.stream_vec),    DESC_STREAMS)
+        ("top,t",                                           DESC_TOP)
+        ("verbose,v",                                       DESC_VERBOSE);
 
     try {
         opt::variables_map argv_map;
@@ -128,13 +133,16 @@ int main(int argc, char *argv[])
         args.live    = (argv_map.count("live") > 0);
         args.info    = (argv_map.count("descriptive") > 0);
         
+        for (const auto &x : args.open_vec)
+            stream_opener.open(x);
+        
         response_printer printer(config, args.json, args.verbose, args.info);
         
         if (argv_map.count("add-bookmark"))
-            bookmarks.add(args.adds);
+            bookmarks.add(args.add_vec);
         
         if (argv_map.count("remove-bookmark"))
-            bookmarks.remove(args.removes);
+            bookmarks.remove(args.remove_vec);
         
         if (argv_map.count("check-bookmarks"))
             bookmarks.check(printer, query);
@@ -147,19 +155,19 @@ int main(int argc, char *argv[])
         if (argv_map.count("featured"))
             response_vec.push_back(query.featured(args.limit));
         
-        for (const auto &x : args.channels)
+        for (const auto &x : args.channel_vec)
             response_vec.push_back(query.channels(x));
         
-        for (const auto &x : args.s_channels)
+        for (const auto &x : args.s_channel_vec)
             response_vec.push_back(query.search_channels(x, args.limit));
         
-        for (const auto &x : args.s_games)
+        for (const auto &x : args.s_game_vec)
             response_vec.push_back(query.search_games(x, args.live));
         
-        for (const auto &x : args.s_streams)
+        for (const auto &x : args.s_stream_vec)
             response_vec.push_back(query.search_streams(x, args.limit));
         
-        for (const auto &x : args.streams)
+        for (const auto &x : args.stream_vec)
             response_vec.push_back(query.streams(x));
         
         if (argv_map.count("top"))

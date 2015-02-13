@@ -21,15 +21,11 @@
 #include <string>
 #include <iomanip>
 #include <cstring>
-#include <fstream>
+#include <iostream>
 
 #include <json/writer.h>
 
-#include <boost/program_options.hpp>
-
 #include "response-printer.hpp"
-
-namespace opt = boost::program_options;
 
 static void trim_string(std::string &str, unsigned int size)
 {
@@ -37,10 +33,9 @@ static void trim_string(std::string &str, unsigned int size)
         str.erase(size);
 }
 
-response_printer::response_printer(const std::string &config, bool json,
+response_printer::response_printer(const config &conf, bool json,
                                    bool verbose, bool informative)
-    : file(config),
-      _table ({
+    : _table ({
           { query::TYPE_CHANNELS, &response_printer::print_channels          },
           { query::TYPE_FEATURED, &response_printer::print_featured          },
           { query::TYPE_SEARCH_C, &response_printer::print_search_channels   },
@@ -50,42 +45,14 @@ response_printer::response_printer(const std::string &config, bool json,
           { query::TYPE_TOP,      &response_printer::print_top               }
       }),
       _reader(),
-      _int_len(11),
-      _name_len(20),
-      _game_len(40),
+      _int_len(conf.integer_length()),
+      _name_len(conf.name_length()),
+      _game_len(conf.game_length()),
       _json(json),
       _verbose(verbose),
       _informative(informative)
 {
-    opt::options_description desc;
-    
-    desc.add_options()
-        ("printer.integer-length", opt::value(&_int_len))
-        ("printer.name-length",    opt::value(&_name_len))
-        ("printer.game-length",    opt::value(&_game_len));
-        
-    try {
-        opt::variables_map conf_var_map;
-        std::ifstream file(config);
-        
-        auto parsed = opt::parse_config_file(file, desc);
-        opt::store(parsed, conf_var_map);
-        opt::notify(conf_var_map);
-        
-        file.close();
-        
-        if (conf_var_map.empty()) {
-            std::ofstream file(config);
-            
-            file << "[printer]\n"
-                 << "integer-length = " << _int_len     << "\n"
-                 << "name-length    = " << _name_len    << "\n"
-                 << "game-length    = " << _game_len    << "\n";
-        }
-        
-    } catch (std::exception &e) {
-        std::cerr << "** Error: unable to parse config - " << e.what() << "\n";
-    }
+
 }
 
 void response_printer::print_response(const query::response &response)
