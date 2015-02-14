@@ -75,7 +75,9 @@ void stream_opener::run(const std::string &stream)
     }
     std::cout << "Redirecting stdout and stderr of \"" << opener 
               << "\" to file \"" << path << "\"." << std::endl;
-              
+    
+    fflush(nullptr);
+    
     /* fork a child and start the stream-opener process */
     pid_t pid = fork();
     
