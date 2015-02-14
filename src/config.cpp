@@ -55,6 +55,18 @@ config::config(const std::string &path)
         
         file.close();
         
+        /*
+         * [stream]
+         * #opener = /usr/bin/chromium
+         * #arg = --incognito
+         * 
+         * opener  = /usr/bin/livestreamer
+         * arg = best
+         * arg = --no-version-check
+         * #arg = --loglevel=debug
+         * 
+         */
+        
         if (conf_var_map.empty()) {
             std::ofstream file(path);
             
@@ -63,7 +75,14 @@ config::config(const std::string &path)
                  << "name-length    = " << _name_len    << "\n"
                  << "game-length    = " << _game_len    << "\n\n"
                  << "[stream]\n"
-                 << "#opener  = /usr/bin/livestreamer\n";
+                 << "#opener = /usr/bin/livestreamer\n"
+                 << "#arg = best\n"
+                 << "#arg = --no-version-check\n"
+                 << "#arg = --loglevel=debug\n\n"
+                 << "#opener = /usr/bin/chromium\n"
+                 << "#arg = --incognito\n"
+                 << "#arg = --start-maximized\n\n"
+                 << "#opener = /usr/bin/firefox\n";
         }
         
     } catch (std::exception &e) {

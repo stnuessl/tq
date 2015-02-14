@@ -21,17 +21,18 @@
 #ifndef _STREAM_OPENER_HPP_
 #define _STREAM_OPENER_HPP_
 
+#include <memory>
+
 #include "config.hpp"
 
 class stream_opener {
 public:
-    explicit stream_opener(const config &config);
+    explicit stream_opener(std::shared_ptr<const config> conf);
     
-    void open(const std::string &stream);
+    void run(const std::string &stream);
     
 private:
-    std::string _opener;
-    std::vector<std::string> _args;
+    std::shared_ptr<const config> _config;
 };
 
 #endif /* _STREAM_OPENER_HPP_ */

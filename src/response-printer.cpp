@@ -33,8 +33,9 @@ static void trim_string(std::string &str, unsigned int size)
         str.erase(size);
 }
 
-response_printer::response_printer(const config &conf, bool json,
-                                   bool verbose, bool informative)
+response_printer::response_printer(std::shared_ptr<const config> conf, 
+                                   bool json, bool verbose, 
+                                   bool informative)
     : _table ({
           { query::TYPE_CHANNELS, &response_printer::print_channels          },
           { query::TYPE_FEATURED, &response_printer::print_featured          },
@@ -45,9 +46,9 @@ response_printer::response_printer(const config &conf, bool json,
           { query::TYPE_TOP,      &response_printer::print_top               }
       }),
       _reader(),
-      _int_len(conf.integer_length()),
-      _name_len(conf.name_length()),
-      _game_len(conf.game_length()),
+      _int_len(conf->integer_length()),
+      _name_len(conf->name_length()),
+      _game_len(conf->game_length()),
       _json(json),
       _verbose(verbose),
       _informative(informative)

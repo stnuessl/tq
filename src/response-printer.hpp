@@ -22,6 +22,7 @@
 #define _RESPONSE_PRINTER_HPP_
 
 #include <unordered_map>
+#include <memory>
 
 #include <json/json.h>
 
@@ -31,8 +32,9 @@
 
 class response_printer {
 public:
-    explicit response_printer(const config &conf, bool json = false,
-                              bool verbose = false, bool informative = false);
+    explicit response_printer(std::shared_ptr<const config> conf, 
+                              bool json = false, bool verbose = false, 
+                              bool informative = false);
     
     void print_response(const query::response &response);
 private:

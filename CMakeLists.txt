@@ -5,7 +5,7 @@ project(tq)
 
 # add_definitions(-D_GNU_SOURCE)
 add_definitions(-Wall -Wextra)
-#add_definitions(-Wpedantic -Weffc++)
+add_definitions(-Wpedantic -Weffc++)
 add_definitions(-O2 -DNDEBUG)
 #add_definitions(-g3)
 

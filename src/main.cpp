@@ -23,6 +23,7 @@
 #include <string.h>
 #include <vector>
 #include <utility>
+#include <memory>
 #include <cstdlib>
 
 #include <json/json.h>
@@ -60,28 +61,31 @@
 #define VAL_MUL(arg)                                                           \
     opt::value((arg))->multitoken()
 
-struct args {
-    std::vector<std::string> add_vec;
-    std::vector<std::string> remove_vec;
-    std::vector<std::string> channel_vec;
-    std::vector<std::string> s_channel_vec;
-    std::vector<std::string> s_game_vec;
-    std::vector<std::string> s_stream_vec;
-    std::vector<std::string> stream_vec;
-    std::vector<std::string> open_vec;
-    bool live;
-    bool json;
-    bool verbose;
-    bool info;
-    unsigned int limit;
-};
-
 namespace opt = boost::program_options;
 
-const std::string home(std::getenv("HOME"));
+struct args {
+    std::vector<std::string> add_vec {};
+    std::vector<std::string> remove_vec {};
+    std::vector<std::string> channel_vec {};
+    std::vector<std::string> s_channel_vec {};
+    std::vector<std::string> s_game_vec {};
+    std::vector<std::string> s_stream_vec {};
+    std::vector<std::string> stream_vec {};
+    std::vector<std::string> open_vec {};
+    bool live = false;
+    bool json = false;
+    bool verbose = false;
+    bool info = false;
+    unsigned int limit = query::default_limit;
+};
 
-bookmarks bookmarks(home + "/.config/tq/bookmarks");
-config config(home + "/.config/tq/tq.conf");
+const std::string home(std::getenv("HOME"));
+const std::string config_path    = home + "/.config/tq/tq.conf";
+const std::string bookmarks_path = home + "/.config/tq/bookmarks";
+
+bookmarks bookmarks(bookmarks_path);
+
+std::shared_ptr<config> tq_config(new config(config_path));
 
 int main(int argc, char *argv[])
 {
@@ -92,9 +96,7 @@ int main(int argc, char *argv[])
     opt::options_description desc(usage + "\nOptions");
     args args;
     query query;
-    stream_opener stream_opener(config);
-    
-    args.limit = query::default_limit;
+    stream_opener stream_opener(tq_config);
 
     desc.add_options()
         ("add-bookmark,a",    VAL_MUL(&args.add_vec),       DESC_ADD_B)
@@ -134,9 +136,9 @@ int main(int argc, char *argv[])
         args.info    = (argv_map.count("descriptive") > 0);
         
         for (const auto &x : args.open_vec)
-            stream_opener.open(x);
+            stream_opener.run(x);
         
-        response_printer printer(config, args.json, args.verbose, args.info);
+        response_printer printer(tq_config, args.json, args.verbose, args.info);
         
         if (argv_map.count("add-bookmark"))
             bookmarks.add(args.add_vec);
