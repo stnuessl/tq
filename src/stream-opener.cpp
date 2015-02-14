@@ -59,17 +59,25 @@ void stream_opener::run(const std::string &stream)
     }
     
     int fd = open(path, O_WRONLY | O_CREAT, 0644);
-    if (fd < 0)
-        throw std::runtime_error("Failed to create stream-opener output file.");
-    
+    if (fd < 0) {
+        std::string err_msg = "Failed to create \"";
+        err_msg += path;
+        err_msg += "\" output file - ";
+        err_msg += std::strerror(errno);
+        throw std::runtime_error(err_msg);
+    }
     std::cout << "Redirecting stdout and stderr of \"" << opener 
               << "\" to file \"" << path << "\"." << std::endl;
               
     /* fork a child and start the stream-opener process */
     pid_t pid = fork();
     
-    if (pid == (pid_t) -1)
-        throw std::runtime_error("Forking new process failed.");
+    if (pid == (pid_t) -1) {
+        std::string err_msg = "forking stream-opener process failed - ";
+        err_msg += std::strerror(errno);
+        
+        throw std::runtime_error(err_msg);
+    }
     
     if (pid > 0) {
         close(fd);
