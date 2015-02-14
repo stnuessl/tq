@@ -23,7 +23,7 @@
 
 #include <string>
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <ostream>
 
 #include "file.hpp"
@@ -42,9 +42,19 @@ public:
     friend std::ostream &operator<<(std::ostream &o, const bookmarks &bm);
     
 private:
+    struct comp {
+        bool operator() (const std::string *a, const std::string *b) const;
+    };
+    
+    struct hash {
+        std::size_t operator() (const std::string *a) const;
+    };
+    
+    typedef std::unordered_set<const std::string *, hash, comp> string_ptr_set;
+    
     std::vector<std::string> read_bookmarks() const;
-    void write_bookmarks(const std::vector<std::string> &vec,
-                         std::set<std::string> &set) const;
+    void write_bookmarks(const std::vector<std::string> &vec, 
+                         string_ptr_set &set) const;
 };
 
 #endif /* _BOOKMARKS_HPP_ */

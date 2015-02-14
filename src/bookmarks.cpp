@@ -35,7 +35,7 @@ void bookmarks::add(const std::string &name)
 
 void bookmarks::add(const std::vector<std::string> &names)
 {
-    std::set<std::string> set;
+    string_ptr_set set;
     
     auto favs = read_bookmarks();
     
@@ -53,10 +53,10 @@ void bookmarks::remove(const std::string &name)
 
 void bookmarks::remove(const std::vector<std::string> &names)
 {
-    std::set<std::string> set;
+    string_ptr_set set;
     
     for (auto &x : names)
-        set.emplace(x);
+        set.insert(&x);
     
     auto favs = read_bookmarks();
     
@@ -82,6 +82,19 @@ std::ostream &operator<<(std::ostream &o, const bookmarks &bm)
         o << "  " << f << "\n";
     
     return o;
+}
+
+bool bookmarks::comp::operator() (const std::string *a, 
+                                  const std::string *b) const
+{
+    return *a == *b;
+}
+
+std::size_t bookmarks::hash::operator()  (const std::string *a) const
+{
+    static const std::hash<std::string> hash_func;
+    
+    return hash_func(*a);
 }
 
 std::vector<std::string> bookmarks::read_bookmarks() const
@@ -114,14 +127,14 @@ std::vector<std::string> bookmarks::read_bookmarks() const
 }
 
 void bookmarks::write_bookmarks(const std::vector<std::string> &vec, 
-                                std::set< std::string > &set) const
+                                string_ptr_set &set) const
 {
     std::ofstream writer(c_str(), std::ios::out);
     
-    for (auto x : vec) {
-        if (set.count(x) == 0) {
+    for (auto &x : vec) {
+        if (set.count(&x) == 0) {
             writer << x << "\n";
-            set.insert(x);
+            set.insert(&x);
         }
     }
 }
