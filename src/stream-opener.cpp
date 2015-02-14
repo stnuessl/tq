@@ -37,7 +37,7 @@ extern char **environ;
 
 static const char *strerror_safe(int errnum)
 {
-    thread_local char buffer[64];
+    static thread_local char buffer[64];
     
     return strerror_r(errnum, buffer, sizeof(buffer));
 }
