@@ -19,11 +19,11 @@
  */
 
 #include <stdexcept>
-#include <cstdlib>
-#include <cstring>
-#include <cerrno>
 #include <iostream>
+#include <cstdlib>
+#include <cerrno>
 
+#include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -34,6 +34,13 @@
 #include "stream-opener.hpp"
 
 extern char **environ;
+
+static const char *strerror_safe(int errnum)
+{
+    thread_local char buffer[64];
+    
+    return strerror_r(errnum, buffer, sizeof(buffer));
+}
 
 stream_opener::stream_opener(const std::shared_ptr<const config> conf)
     : _config(conf)
@@ -63,7 +70,7 @@ void stream_opener::run(const std::string &stream)
         std::string err_msg = "Failed to create \"";
         err_msg += path;
         err_msg += "\" output file - ";
-        err_msg += std::strerror(errno);
+        err_msg += strerror_safe(errno);
         throw std::runtime_error(err_msg);
     }
     std::cout << "Redirecting stdout and stderr of \"" << opener 
@@ -74,7 +81,7 @@ void stream_opener::run(const std::string &stream)
     
     if (pid == (pid_t) -1) {
         std::string err_msg = "forking stream-opener process failed - ";
-        err_msg += std::strerror(errno);
+        err_msg += strerror_safe(errno);
         
         throw std::runtime_error(err_msg);
     }
@@ -94,7 +101,7 @@ void stream_opener::run(const std::string &stream)
             err_msg += "failed to redirect stdout of \"";
             err_msg += opener;
             err_msg += "\" - ";
-            err_msg += std::strerror(errno);
+            err_msg += strerror_safe(errno);
             err_msg += ".";
             throw std::runtime_error(err_msg);
         }
@@ -104,7 +111,7 @@ void stream_opener::run(const std::string &stream)
             err_msg += "failed to redirect stderr of \"";
             err_msg += opener;
             err_msg += "\" - ";
-            err_msg += std::strerror(errno);
+            err_msg += strerror_safe(errno);
             err_msg += ".";
             throw std::runtime_error(err_msg);
         }
@@ -127,7 +134,7 @@ void stream_opener::run(const std::string &stream)
         std::string err_msg("stream-opener: failed to execute process \"");
         err_msg += opener;
         err_msg += "\" - ";
-        err_msg += std::strerror(errno);
+        err_msg += strerror_safe(errno);
         err_msg += ".";
         
         throw std::runtime_error(err_msg);
