@@ -80,11 +80,10 @@ struct args {
 };
 
 const std::string home(std::getenv("HOME"));
-const std::string config_path    = home + "/.config/tq/tq.conf";
 const std::string bookmarks_path = home + "/.config/tq/bookmarks";
+const std::string config_path    = home + "/.config/tq/tq.conf";
 
 bookmarks bookmarks(bookmarks_path);
-
 std::shared_ptr<config> tq_config(new config(config_path));
 
 int main(int argc, char *argv[])
