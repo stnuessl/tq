@@ -54,7 +54,8 @@ public:
     response streams(const std::string &name);
     response top(unsigned int limit = default_limit);
 private:
-    static const std::string valid_limit_str(unsigned int limit);
+    static void throw_if_invalid_name(const std::string &str);
+    static void throw_if_invalid_limit(unsigned int limit);
 
     url_client _client;
 };

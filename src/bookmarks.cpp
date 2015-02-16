@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <fstream>
 
 #include "query.hpp"
@@ -37,12 +38,12 @@ void bookmarks::add(const std::vector<std::string> &names)
 {
     string_ptr_set set;
     
-    auto favs = read_bookmarks();
+    auto favs = read();
     
     for (auto &x : names)
         favs.emplace_back(x);
     
-    write_bookmarks(favs, set);
+    write(favs, set);
 }
 
 
@@ -58,14 +59,14 @@ void bookmarks::remove(const std::vector<std::string> &names)
     for (auto &x : names)
         set.insert(&x);
     
-    auto favs = read_bookmarks();
+    auto favs = read();
     
-    write_bookmarks(favs, set);
+    write(favs, set);
 }
 
 void bookmarks::check(response_printer &printer, query &query)
 {
-    auto favs = read_bookmarks();
+    auto favs = read();
     
     for (const auto &x : favs) {
         auto response = query.streams(x);
@@ -76,7 +77,7 @@ void bookmarks::check(response_printer &printer, query &query)
 
 std::ostream &operator<<(std::ostream &o, const bookmarks &bm)
 {
-    auto favs = bm.read_bookmarks();
+    auto favs = bm.read();
     
     for (const auto &f : favs)
         o << "  " << f << "\n";
@@ -97,7 +98,7 @@ std::size_t bookmarks::hash::operator()  (const std::string *a) const
     return hash_func(*a);
 }
 
-std::vector<std::string> bookmarks::read_bookmarks() const
+std::vector<std::string> bookmarks::read() const
 {
     std::vector<std::string> ret;
     
@@ -109,16 +110,12 @@ std::vector<std::string> bookmarks::read_bookmarks() const
         if (line[0] == '#' || line[0] == ';')
             continue;
         
-        auto it  = line.begin();
-        auto end = line.end();
+        auto begin = line.begin();
+        auto end   = line.end();
         
-        while (it != end && !std::isalnum(*it))
-            it++;
+        auto pred = [](char c) { return !std::isalnum(c); };
         
-        line.erase(line.begin(), it);
-        
-        while (!line.empty() && !std::isalnum(line.back()))
-            line.pop_back();
+        line.erase(std::remove_if(begin, end, pred), line.end());
         
         ret.emplace_back(line);
     }
@@ -126,8 +123,8 @@ std::vector<std::string> bookmarks::read_bookmarks() const
     return ret;
 }
 
-void bookmarks::write_bookmarks(const std::vector<std::string> &vec, 
-                                string_ptr_set &set) const
+void bookmarks::write(const std::vector<std::string> &vec, 
+                      string_ptr_set &set) const
 {
     std::ofstream writer(c_str(), std::ios::out);
     

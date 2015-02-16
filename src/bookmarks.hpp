@@ -52,9 +52,8 @@ private:
     
     typedef std::unordered_set<const std::string *, hash, comp> string_ptr_set;
     
-    std::vector<std::string> read_bookmarks() const;
-    void write_bookmarks(const std::vector<std::string> &vec, 
-                         string_ptr_set &set) const;
+    std::vector<std::string> read() const;
+    void write(const std::vector<std::string> &vec, string_ptr_set &set) const;
 };
 
 #endif /* _BOOKMARKS_HPP_ */

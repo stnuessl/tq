@@ -36,6 +36,8 @@ query::query()
 
 query::response query::channels(const std::string &name)
 {
+    throw_if_invalid_name(name);
+    
     std::string url(BASE_URL "channels/");
     url += name;
     
@@ -46,8 +48,10 @@ query::response query::channels(const std::string &name)
 
 query::response query::featured(unsigned int limit)
 {
+    throw_if_invalid_limit(limit);
+    
     std::string url(BASE_URL "streams/featured?limit=");
-    url += valid_limit_str(limit);
+    url += std::to_string(limit);
     
     auto str = _client.get_response(url);
     
@@ -57,10 +61,13 @@ query::response query::featured(unsigned int limit)
 query::response query::search_channels(const std::string &name, 
                                        unsigned int limit)
 {
+    throw_if_invalid_name(name);
+    throw_if_invalid_limit(limit);
+    
     std::string url(BASE_URL "search/channels?q=");
     url += name;
     url += "&limit=";
-    url += valid_limit_str(limit);
+    url += std::to_string(limit);
     
     auto str = _client.get_response(url);
     
@@ -69,6 +76,8 @@ query::response query::search_channels(const std::string &name,
 
 query::response query::search_games(const std::string &name, bool live)
 {
+    throw_if_invalid_name(name);
+    
     std::string url(BASE_URL "search/games?q=");
     url += name;
     url += "&type=suggest&live=";
@@ -83,10 +92,13 @@ query::response query::search_games(const std::string &name, bool live)
 query::response query::search_streams(const std::string &name, 
                                       unsigned int limit)
 {
+    throw_if_invalid_name(name);
+    throw_if_invalid_limit(limit);
+    
     std::string url(BASE_URL "search/streams?q=");
     url += name;
     url += "&limit=";
-    url += valid_limit_str(limit);
+    url += std::to_string(limit);
     
     auto str = _client.get_response(url);
     
@@ -95,6 +107,8 @@ query::response query::search_streams(const std::string &name,
 
 query::response query::streams(const std::string &name)
 {
+    throw_if_invalid_name(name);
+    
     std::string url(BASE_URL "streams/");
     url += name;
     
@@ -105,23 +119,47 @@ query::response query::streams(const std::string &name)
 
 query::response query::top(unsigned int limit)
 {
+    throw_if_invalid_limit(limit);
+    
     std::string url(BASE_URL "games/top?limit=");
-    url += valid_limit_str(limit);
+    url += std::to_string(limit);
     
     auto str = _client.get_response(url);
     
     return response(query::TYPE_TOP, str);
 }
 
-const std::string query::valid_limit_str(unsigned int limit)
+void query::throw_if_invalid_name(const std::string &str)
+{
+    auto pred = [](char c) { return std::isspace(c); };
+    
+    auto it = std::find_if(str.begin(), str.end(), pred);
+    
+    if (it != str.end()) {
+        std::string err_msg = "Invalid whitespace character in ";
+        err_msg += "\"";
+        err_msg += str;
+        err_msg += "\""; 
+        throw std::invalid_argument(err_msg);
+    }
+}
+
+
+void query::throw_if_invalid_limit(unsigned int limit)
 {
     const static unsigned int min = 1;
     const static unsigned int max = 100;
     
-    /* A valid limit value has to be in range [1, 100] */
-    limit = std::max(limit, min);
-    limit = std::min(limit, max);
-    
-    return std::to_string(limit);
+    if (limit < min || limit > max) {
+        std::string err_msg = "Invalid limit \"";
+        err_msg += std::to_string(limit);
+        err_msg += "\": value must be of range [";
+        err_msg += std::to_string(min);
+        err_msg += ", ";
+        err_msg += std::to_string(max);
+        err_msg += "]";
+
+        throw std::invalid_argument(err_msg);
+    }
 }
 
