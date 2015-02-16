@@ -22,6 +22,7 @@
 #define _URL_CLIENT_HPP_
 
 #include <string>
+#include <memory>
 
 #include <curl/curl.h>
 
@@ -36,7 +37,14 @@ public:
     url_client &operator=(const url_client &client) = delete;
     
 private:
-    static bool _libcurl_init;
+    class curl_global {
+    public:
+        static void init();
+        
+    private:
+        explicit curl_global();
+        ~curl_global();
+    };
     
     std::string _header;
     std::string _response;

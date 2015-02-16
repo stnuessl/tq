@@ -4,8 +4,6 @@
 
 #include "url-client.hpp"
 
-bool url_client::_libcurl_init = false;
-
 static size_t gather_response(char *p, 
                               size_t size, 
                               size_t nmemb, 
@@ -26,14 +24,7 @@ url_client::url_client()
 {
     const static char header[] = "Accept: application/vnd.twitchtv.v3+json";
     
-    if (!_libcurl_init) {
-        auto err = curl_global_init(CURL_GLOBAL_SSL);
-        
-        if (err)
-            throw std::runtime_error("curl_global_init() failed.");
-        
-        _libcurl_init = true;
-    }
+    curl_global::init();
     
     _curl_slist = curl_slist_append(_curl_slist, header);
     if (!_curl_slist)
@@ -79,4 +70,21 @@ std::string url_client::get_response(const std::string &url)
         throw std::runtime_error("Server sent invalid MIME type:\n" + _header);
         
     return std::move(_response);
+}
+
+url_client::curl_global::curl_global()
+{
+    auto err = curl_global_init(CURL_GLOBAL_SSL);
+    if (err)
+        throw std::runtime_error("Failed to initialize curl_global");
+}
+
+url_client::curl_global::~curl_global()
+{
+    curl_global_cleanup();
+}
+
+void url_client::curl_global::init()
+{
+    static curl_global curl_global;
 }

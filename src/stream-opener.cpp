@@ -73,6 +73,7 @@ void stream_opener::run(const std::string &stream)
         err_msg += strerror_safe(errno);
         throw std::runtime_error(err_msg);
     }
+    
     std::cout << "Redirecting stdout and stderr of \"" << opener 
               << "\" to file \"" << path << "\"." << std::endl;
     
