@@ -97,26 +97,21 @@ void stream_opener::run(const std::string &stream)
     close(STDIN_FILENO);
     
     try {
+        const int fds[] = { STDOUT_FILENO, STDERR_FILENO };
         
-        /* redirect output: do not interfere with the tq terminal output */
-        if (dup2(fd, STDOUT_FILENO) < 0) {
-            std::string err_msg("stream-opener: ");
-            err_msg += "failed to redirect stdout of \"";
-            err_msg += opener;
-            err_msg += "\" - ";
-            err_msg += strerror_safe(errno);
-            err_msg += ".";
-            throw std::runtime_error(err_msg);
-        }
-        
-        if (dup2(fd, STDERR_FILENO) < 0) {
-            std::string err_msg("stream-opener: ");
-            err_msg += "failed to redirect stderr of \"";
-            err_msg += opener;
-            err_msg += "\" - ";
-            err_msg += strerror_safe(errno);
-            err_msg += ".";
-            throw std::runtime_error(err_msg);
+        for (auto &x : fds) {
+            /* redirect fds: do not interfere with the tq terminal output */
+            if (dup2(fd, x) < 0) {
+                std::string err_msg("stream-opener: ");
+                err_msg += "failed to redirect fd ";
+                err_msg += std::to_string(x);
+                err_msg += " of \"";
+                err_msg += opener;
+                err_msg += "\" - ";
+                err_msg += strerror_safe(errno);
+                err_msg += ".";
+                throw std::runtime_error(err_msg);
+            }
         }
         
         /* 'char *const argv[]' is kind of a funny interface ... */
