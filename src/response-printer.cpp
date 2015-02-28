@@ -278,7 +278,7 @@ void response_printer::print_streams(const Json::Value& val)
     
     while (begin < end) {
         index = self.find(s_seperator, begin);
-        if (index == std::string::npos)
+        if (index == std::string::npos || index > end)
             index = end;
         
         const auto name = self.substr(begin, index - begin);
