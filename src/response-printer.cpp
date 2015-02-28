@@ -246,17 +246,51 @@ void response_printer::print_search_streams(const Json::Value& val)
 
 void response_printer::print_streams(const Json::Value& val)
 {
+    static const std::string s_channel = "channel=";
+    std::map<std::string, const Json::Value *> received_streams;
+    static const std::string s_seperator = "%2C";
     auto streams = val["streams"];
+    auto self    = val["_links"]["self"].asString();
+    
+    
+    /* gather all returned streams */
+    for (auto &x : streams) {
+        const auto name = x["channel"]["name"].asString();
+        
+        received_streams[name] = &x;
+    }
     
     std::cout << "[ Streams ]:\n";
     
-    if (streams.empty()) {
-        std::cout << "  All requested streams are offline\n";
+    /* 
+     * Iterate over all queried streams and print them.
+     * The queried names are extracted from link 'self'.
+     */
+    
+    auto index = self.find(s_channel);
+    if (index == std::string::npos) {
+        std::cerr << "  Invalid response from server\n";
         return;
     }
     
-    for (auto &x : streams)
-        print_stream_full(x);
+    auto begin = index + s_channel.size();
+    auto end   = self.find("&", begin);
+    
+    while (begin < end) {
+        index = self.find(s_seperator, begin);
+        if (index == std::string::npos)
+            index = end;
+        
+        const auto name = self.substr(begin, index - begin);
+        begin = index + s_seperator.size();
+        
+        auto it = received_streams.find(name);
+        
+        if (it != received_streams.end())
+            print_stream_full(*it->second);
+        else
+            std::cout << "  Stream [ " << name << " ]: offline\n";
+    }
 }
 
 void response_printer::print_channel_full(const Json::Value &channel)
