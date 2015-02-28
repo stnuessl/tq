@@ -52,6 +52,7 @@ public:
     response search_streams(const std::string &name,
                             unsigned int limit = default_limit);
     response streams(const std::string &name);
+    response streams(const std::vector<std::string> &names);
     response top(unsigned int limit = default_limit);
 private:
     static void throw_if_invalid_name(const std::string &str);

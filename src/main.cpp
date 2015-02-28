@@ -168,8 +168,8 @@ int main(int argc, char *argv[])
         for (const auto &x : args.s_stream_vec)
             response_vec.push_back(query.search_streams(x, args.limit));
         
-        for (const auto &x : args.stream_vec)
-            response_vec.push_back(query.streams(x));
+        if (!args.stream_vec.empty())
+            response_vec.push_back(query.streams(args.stream_vec));
         
         if (argv_map.count("top"))
             response_vec.push_back(query.top(args.limit));

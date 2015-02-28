@@ -246,16 +246,17 @@ void response_printer::print_search_streams(const Json::Value& val)
 
 void response_printer::print_streams(const Json::Value& val)
 {
-    auto stream = val["stream"];
+    auto streams = val["streams"];
     
-    if (stream.isNull()) {
-        auto self = val["_links"]["self"].asCString();
-        auto name = std::strrchr(self, '/') + 1;
-        
-        std::cout << "  Stream [ " << name  << " ]: offline" << std::endl;
-    } else {
-        print_stream_full(stream);
+    std::cout << "[ Streams ]:\n";
+    
+    if (streams.empty()) {
+        std::cout << "  All requested streams are offline\n";
+        return;
     }
+    
+    for (auto &x : streams)
+        print_stream_full(x);
 }
 
 void response_printer::print_channel_full(const Json::Value &channel)

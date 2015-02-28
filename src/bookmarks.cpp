@@ -68,11 +68,9 @@ void bookmarks::check(response_printer &printer, query &query)
 {
     auto favs = read();
     
-    for (const auto &x : favs) {
-        auto response = query.streams(x);
-                
-        printer.print_response(response);
-    }
+    auto response = query.streams(favs);
+    
+    printer.print_response(response);
 }
 
 std::ostream &operator<<(std::ostream &o, const bookmarks &bm)

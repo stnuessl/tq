@@ -107,10 +107,28 @@ query::response query::search_streams(const std::string &name,
 
 query::response query::streams(const std::string &name)
 {
-    throw_if_invalid_name(name);
+    return streams(std::vector<std::string> { name });
+}
+
+query::response query::streams(const std::vector<std::string> &names)
+{
+    std::string url(BASE_URL "streams?channel=");
+    auto size = names.size();
     
-    std::string url(BASE_URL "streams/");
-    url += name;
+    throw_if_invalid_limit(size);
+    
+    for (auto &x : names) {
+        throw_if_invalid_name(x);
+        
+        url += x;
+        url += ",";
+    }
+    
+    /* remove last ',' */
+    url.pop_back();
+    
+    url += "&limit=";
+    url += std::to_string(size);
     
     auto str = _client.get_response(url);
     
