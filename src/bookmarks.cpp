@@ -25,8 +25,7 @@
 #include "bookmarks.hpp"
 
 bookmarks::bookmarks(const std::string &path)
-    : file(path)
-{
+    : file(path){
 }
 
 void bookmarks::add(const std::string &name)
@@ -77,9 +76,9 @@ std::ostream &operator<<(std::ostream &o, const bookmarks &bm)
 {
     auto favs = bm.read();
     
-    for (const auto &f : favs)
-        o << "  " << f << "\n";
-    
+    for (const auto &x : favs)
+        o << x << "\n";
+        
     return o;
 }
 

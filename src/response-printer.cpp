@@ -36,16 +36,7 @@ static void trim_string(std::string &str, unsigned int size)
 response_printer::response_printer(std::shared_ptr<const config> conf, 
                                    bool json, bool verbose, 
                                    bool informative)
-    : _table ({
-          { query::TYPE_CHANNELS, &response_printer::print_channels          },
-          { query::TYPE_FEATURED, &response_printer::print_featured          },
-          { query::TYPE_SEARCH_C, &response_printer::print_search_channels   },
-          { query::TYPE_SEARCH_G, &response_printer::print_search_games      },
-          { query::TYPE_SEARCH_S, &response_printer::print_search_streams    },
-          { query::TYPE_STREAMS,  &response_printer::print_streams           },
-          { query::TYPE_TOP,      &response_printer::print_top               }
-      }),
-      _reader(),
+    : _reader(),
       _int_len(conf->integer_length()),
       _name_len(conf->name_length()),
       _game_len(conf->game_length()),
@@ -84,12 +75,30 @@ void response_printer::print_response(const query::response &response)
         return;
     }
     
-    try {
-        auto f = _table[type];
-        
-        (this->*f)(val);
-    } catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+    switch (type) {
+    case query::TYPE_CHANNELS:
+        print_channels(val);
+        break;
+    case query::TYPE_FEATURED:
+        print_featured(val);
+        break;
+    case query::TYPE_SEARCH_C:
+        print_search_channels(val);
+        break;
+    case query::TYPE_SEARCH_G:
+        print_search_games(val);
+        break;
+    case query::TYPE_SEARCH_S:
+        print_search_streams(val);
+        break;
+    case query::TYPE_STREAMS:
+        print_streams(val);
+        break;
+    case query::TYPE_TOP:
+        print_top(val);
+        break;
+    default:
+        throw std::invalid_argument("Invalid response type");
     }
 }
 

@@ -57,10 +57,6 @@ private:
     void print_top_game_header() const;
     void print_game_header() const;
     
-    typedef void (response_printer::*handler)(const Json::Value &);
-        
-    std::unordered_map<int, handler> _table;
-    
     Json::Reader _reader;
     
     unsigned int _int_len;
