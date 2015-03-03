@@ -75,7 +75,7 @@ struct args {
     bool live = false;
     bool json = false;
     bool verbose = false;
-    bool info = false;
+    bool descriptive = false;
     unsigned int limit = query::default_limit;
 };
 
@@ -129,15 +129,15 @@ int main(int argc, char *argv[])
             std::exit(EXIT_SUCCESS);
         }
         
-        args.verbose = (argv_map.count("verbose") > 0);
-        args.json    = (argv_map.count("json") > 0);
-        args.live    = (argv_map.count("live") > 0);
-        args.info    = (argv_map.count("descriptive") > 0);
+        args.verbose            = (argv_map.count("verbose") > 0);
+        args.json               = (argv_map.count("json") > 0);
+        args.live               = (argv_map.count("live") > 0);
+        args.descriptive        = (argv_map.count("descriptive") > 0);
         
         for (const auto &x : args.open_vec)
             stream_opener.run(x);
         
-        response_printer printer(tq_config, args.json, args.verbose, args.info);
+        response_printer printer(tq_config, args.json, args.verbose, args.descriptive);
         
         if (argv_map.count("add-bookmark"))
             bookmarks.add(args.add_vec);

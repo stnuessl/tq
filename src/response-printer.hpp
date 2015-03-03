@@ -34,7 +34,7 @@ class response_printer {
 public:
     explicit response_printer(std::shared_ptr<const config> conf, 
                               bool json = false, bool verbose = false, 
-                              bool informative = false);
+                              bool descriptive = false);
     
     void print_response(const query::response &response);
 private:
@@ -65,7 +65,7 @@ private:
     
     bool _json;
     bool _verbose;
-    bool _informative;
+    bool _descriptive;
 };
 
 #endif /* _RESPONSE_PRINTER_HPP_ */

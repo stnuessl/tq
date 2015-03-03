@@ -34,15 +34,14 @@ static void trim_string(std::string &str, unsigned int size)
 }
 
 response_printer::response_printer(std::shared_ptr<const config> conf, 
-                                   bool json, bool verbose, 
-                                   bool informative)
+                                   bool json, bool verbose, bool descriptive)
     : _reader(),
       _int_len(conf->integer_length()),
       _name_len(conf->name_length()),
       _game_len(conf->game_length()),
       _json(json),
       _verbose(verbose),
-      _informative(informative)
+      _descriptive(descriptive)
 {
 
 }
@@ -106,7 +105,7 @@ void response_printer::print_top(const Json::Value &val)
 {
     std::cout << "[ Top ]:\n";
     
-    if (_informative)
+    if (_descriptive)
         print_top_game_header();
     
     for (auto &x : val["top"])
@@ -131,7 +130,7 @@ void response_printer::print_featured(const Json::Value& val)
             print_stream_full(stream);
         }
     } else {
-        if (_informative)
+        if (_descriptive)
             print_stream_short_header();
         
         for (auto &x : list) {
@@ -210,7 +209,7 @@ void response_printer::print_search_channels(const Json::Value& val)
         for (auto &chan : channels)  
             print_channel_full(chan);        
     } else {
-        if (_informative)
+        if (_descriptive)
             print_channel_short_header();
         
         for (auto &chan : channels)
@@ -222,7 +221,7 @@ void response_printer::print_search_games(const Json::Value& val)
 {
     std::cout << "[ Search Games ]:\n";
     
-    if (_informative)
+    if (_descriptive)
         print_game_header();
     
     for (auto &x : val["games"]) {
@@ -245,7 +244,7 @@ void response_printer::print_search_streams(const Json::Value& val)
         for (auto &s : streams)
             print_stream_full(s);
     } else {
-        if (_informative)
+        if (_descriptive)
             print_stream_short_header();
         
         for (auto &s : streams)
