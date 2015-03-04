@@ -124,20 +124,14 @@ void response_printer::print_featured(const Json::Value& val)
     auto list = val["featured"];
 
     if (_verbose) {
-        for (auto &x : list) {
-            auto stream = x["stream"];
-            
-            print_stream_full(stream);
-        }
+        for (auto &x : list)
+            print_stream_full(x["stream"]);
     } else {
         if (_descriptive)
             print_stream_short_header();
         
-        for (auto &x : list) {
-            auto stream = x["stream"];
-
-            print_stream_short(stream);
-        }
+        for (auto &x : list)
+            print_stream_short(x["stream"]);
     }
 }
 

@@ -76,7 +76,7 @@ struct args {
     bool json = false;
     bool verbose = false;
     bool desc = false;
-    unsigned int limit = query::default_limit;
+    unsigned int limit = 0;
 };
 
 const std::string home(std::getenv("HOME"));
@@ -90,9 +90,9 @@ int main(int argc, char *argv[])
 {
     std::string usage("Usage: ");
     usage += std::string(argv[0]);
-    usage += " option1 [arg1][arg2]... option2 [arg1]...\n";
+    usage += " option1 [arg1][arg2]... option2 [arg1]...\n\nOptions";
     
-    opt::options_description desc(usage + "\nOptions");
+    opt::options_description desc(usage);
     stream_opener stream_opener(conf);
     query query;
     args args;

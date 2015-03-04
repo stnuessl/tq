@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <utility>
 
 #include "query.hpp"
 #include "bookmarks.hpp"
@@ -35,12 +36,14 @@ void bookmarks::add(const std::string &name)
 
 void bookmarks::add(const std::vector<std::string> &names)
 {
+    if (names.empty())
+        return;
+    
     string_ptr_set set;
     
     auto favs = read();
     
-    for (auto &x : names)
-        favs.emplace_back(x);
+    favs.insert(favs.end(), names.begin(), names.end());
     
     write(favs, set);
 }
@@ -53,8 +56,11 @@ void bookmarks::remove(const std::string &name)
 
 void bookmarks::remove(const std::vector<std::string> &names)
 {
-    string_ptr_set set;
+    if (names.empty())
+        return;
     
+    string_ptr_set set;
+
     for (auto &x : names)
         set.insert(&x);
     
@@ -66,6 +72,9 @@ void bookmarks::remove(const std::vector<std::string> &names)
 void bookmarks::check(response_printer &printer, query &query)
 {
     auto favs = read();
+    
+    if (favs.empty())
+        return;
     
     auto response = query.streams(favs);
     
@@ -88,7 +97,7 @@ bool bookmarks::comp::operator() (const std::string *a,
     return *a == *b;
 }
 
-std::size_t bookmarks::hash::operator()  (const std::string *a) const
+std::size_t bookmarks::hash::operator() (const std::string *a) const
 {
     static const std::hash<std::string> hash_func;
     
@@ -97,6 +106,8 @@ std::size_t bookmarks::hash::operator()  (const std::string *a) const
 
 std::vector<std::string> bookmarks::read() const
 {
+    auto predicate = [](char c) { return !std::isalnum(c); };
+    
     std::vector<std::string> ret;
     
     std::ifstream reader(c_str(), std::ios::in);
@@ -110,11 +121,9 @@ std::vector<std::string> bookmarks::read() const
         auto begin = line.begin();
         auto end   = line.end();
         
-        auto pred = [](char c) { return !std::isalnum(c); };
+        line.erase(std::remove_if(begin, end, predicate), line.end());
         
-        line.erase(std::remove_if(begin, end, pred), line.end());
-        
-        ret.emplace_back(line);
+        ret.push_back(std::move(line));
     }
     
     return ret;

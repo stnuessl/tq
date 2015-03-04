@@ -70,11 +70,11 @@ config::config(const std::string &path)
             o_file.setf(std::ios::boolalpha);
             
             o_file << "[args]\n"
-                   << "limit = " << _limit << "\n"
-                   << "live = " << _live << "\n"
-                   << "json = " << _json << "\n"
-                   << "verbose = " << _verbose << "\n"
-                   << "descriptive = " << _descriptive << "\n\n"
+                   << "limit       = " << _limit        << "\n"
+                   << "live        = " << _live         << "\n"
+                   << "json        = " << _json         << "\n"
+                   << "verbose     = " << _verbose      << "\n"
+                   << "descriptive = " << _descriptive  << "\n\n"
                    << "[printer]\n"
                    << "integer-length = " << _int_len     << "\n"
                    << "name-length    = " << _name_len    << "\n"
