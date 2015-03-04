@@ -30,6 +30,13 @@ class config : public file {
 public:
     config(const std::string &path);
     
+    unsigned int limit() const;
+    
+    bool live() const;
+    bool json() const;
+    bool verbose() const;
+    bool descriptive() const;
+    
     unsigned int integer_length() const;
     unsigned int name_length() const;
     unsigned int game_length() const;
@@ -37,6 +44,13 @@ public:
     const std::string &stream_opener() const;
     const std::vector<std::string> &stream_opener_args() const;
 private:
+    unsigned int _limit;
+    
+    bool _live;
+    bool _json;
+    bool _verbose;
+    bool _descriptive;
+    
     unsigned int _int_len;
     unsigned int _name_len;
     unsigned int _game_len;

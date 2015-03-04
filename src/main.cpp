@@ -75,7 +75,7 @@ struct args {
     bool live = false;
     bool json = false;
     bool verbose = false;
-    bool descriptive = false;
+    bool desc = false;
     unsigned int limit = query::default_limit;
 };
 
@@ -84,7 +84,7 @@ const std::string bookmarks_path = home + "/.config/tq/bookmarks";
 const std::string config_path    = home + "/.config/tq/tq.conf";
 
 bookmarks bookmarks(bookmarks_path);
-std::shared_ptr<config> tq_config(new config(config_path));
+std::shared_ptr<config> conf(new config(config_path));
 
 int main(int argc, char *argv[])
 {
@@ -93,9 +93,12 @@ int main(int argc, char *argv[])
     usage += " option1 [arg1][arg2]... option2 [arg1]...\n";
     
     opt::options_description desc(usage + "\nOptions");
-    args args;
+    stream_opener stream_opener(conf);
     query query;
-    stream_opener stream_opener(tq_config);
+    args args;
+    
+    /* 'limit' will get overwritten if it is specified as a program argument */
+    args.limit = conf->limit();
 
     desc.add_options()
         ("add-bookmark,a",    VAL_MUL(&args.add_vec),       DESC_ADD_B)
@@ -129,15 +132,15 @@ int main(int argc, char *argv[])
             std::exit(EXIT_SUCCESS);
         }
         
-        args.verbose            = (argv_map.count("verbose") > 0);
-        args.json               = (argv_map.count("json") > 0);
-        args.live               = (argv_map.count("live") > 0);
-        args.descriptive        = (argv_map.count("descriptive") > 0);
-        
+        args.verbose = argv_map.count("verbose") > 0 || conf->verbose();
+        args.json    = argv_map.count("json") > 0 || conf->json();
+        args.live    = argv_map.count("live") > 0 || conf->live();
+        args.desc    = argv_map.count("descriptive") > 0 || conf->descriptive();
+
         for (const auto &x : args.open_vec)
             stream_opener.run(x);
         
-        response_printer printer(tq_config, args.json, args.verbose, args.descriptive);
+        response_printer printer(conf, args.json, args.verbose, args.desc);
         
         if (argv_map.count("add-bookmark"))
             bookmarks.add(args.add_vec);
