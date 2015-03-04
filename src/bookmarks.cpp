@@ -85,8 +85,10 @@ std::ostream &operator<<(std::ostream &o, const bookmarks &bm)
 {
     auto favs = bm.read();
     
+    o << "[ Bookmarks ]:\n";
+    
     for (const auto &x : favs)
-        o << x << "\n";
+        o << "  " << x << "\n";
         
     return o;
 }
