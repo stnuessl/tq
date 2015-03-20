@@ -36,24 +36,25 @@
 #include "bookmarks.hpp"
 #include "stream-opener.hpp"
 
-#define DESC_ADD_B    "Add a new bookmark."
-#define DESC_CHANNELS "Retrieve information about a channel."
-#define DESC_CHECK_B  "Check which bookmarks are streaming."
-#define DESC_DESC     "Print descriptive line headers, if applicable." 
-#define DESC_FEATURED "Query featured streams."
-#define DESC_GET_F    "Show all specified bookmarks."
-#define DESC_HELP     "Print this help message."
-#define DESC_JSON     "Pretty print the json strings sent from the server."
-#define DESC_LIMIT    "Set the number of returned results."
-#define DESC_LIVE     "If searching for games: list only games that are live."
-#define DESC_REMOVE_B "Remove a bookmark."
-#define DESC_SEARCH_C "Search for channels."
-#define DESC_SEARCH_G "Search for games."
-#define DESC_SEARCH_S "Search for streams."
-#define DESC_STREAMS  "Retrieve information about a steam. Stream must be live."
-#define DESC_TOP      "Get a list of the currently top played games."
-#define DESC_VERBOSE  "Retrieve more information about queried items."
-#define DESC_OPEN     "Open the stream for watching."
+#define DESC_ADD_B     "Add a new bookmark."
+#define DESC_CHANNELS  "Retrieve information about a channel."
+#define DESC_CHECK_B   "Check which bookmarks are streaming."
+#define DESC_DESC      "Print descriptive line headers, if applicable." 
+#define DESC_FEATURED  "Query featured streams."
+#define DESC_GET_F     "Show all specified bookmarks."
+#define DESC_HELP      "Print this help message."
+#define DESC_JSON      "Pretty print the json strings sent from the server."
+#define DESC_LIMIT     "Set the number of returned results."
+#define DESC_LIVE      "If searching for games: list only games that are live."
+#define DESC_REMOVE_B  "Remove a bookmark."
+#define DESC_SEARCH_C  "Search for channels."
+#define DESC_SEARCH_G  "Search for games."
+#define DESC_SEARCH_S  "Search for streams."
+#define DESC_STREAMS   "Retrieve information about a steam. Stream must be live."
+#define DESC_TOP       "Get a list of the currently top played games."
+#define DESC_VERBOSE   "Retrieve more information about queried items."
+#define DESC_OPEN      "Open the stream for watching."
+#define DESC_OPEN_ARGS "Additional arguments passed to the opener."
 
 #define VAL(arg)                                                               \
     opt::value((arg))
@@ -72,6 +73,7 @@ struct args {
     std::vector<std::string> s_stream_vec {};
     std::vector<std::string> stream_vec {};
     std::vector<std::string> open_vec {};
+    std::vector<std::string> open_args_vec {};
     bool live = false;
     bool json = false;
     bool verbose = false;
@@ -112,6 +114,7 @@ int main(int argc, char *argv[])
         ("limit",             VAL(&args.limit),             DESC_LIMIT)
         ("live",                                            DESC_LIVE)
         ("open,o",            VAL_MUL(&args.open_vec),      DESC_OPEN)
+        ("open-args",         VAL_MUL(&args.open_args_vec), DESC_OPEN_ARGS)
         ("remove-bookmark,r", VAL_MUL(&args.remove_vec),    DESC_REMOVE_B)
         ("search-channels,c", VAL_MUL(&args.s_channel_vec), DESC_SEARCH_C)
         ("search-games,g",    VAL_MUL(&args.s_game_vec),    DESC_SEARCH_G)
@@ -138,7 +141,7 @@ int main(int argc, char *argv[])
         args.desc    = argv_map.count("descriptive") > 0 || conf->descriptive();
 
         for (const auto &x : args.open_vec)
-            stream_opener.run(x);
+            stream_opener.run(x, args.open_args_vec);
         
         response_printer printer(conf, args.json, args.verbose, args.desc);
         

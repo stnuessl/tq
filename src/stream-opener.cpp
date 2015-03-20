@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <cerrno>
 
+
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -30,10 +31,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-
+#include "resource_guard.hpp"
 #include "stream-opener.hpp"
 
 extern char **environ;
+
 
 static const char *strerror_safe(int errnum)
 {
@@ -47,14 +49,14 @@ stream_opener::stream_opener(const std::shared_ptr<const config> conf)
 {
 }
 
-
-void stream_opener::run(const std::string &stream)
+void stream_opener::run(const std::string &stream, 
+                        const std::vector<std::string> &args)
 {
     static const char path[] = "/tmp/tq-stream-opener.txt";
     const std::string url("www.twitch.tv/" + stream);
-    
-    auto opener = _config->stream_opener();
-    auto args   = _config->stream_opener_args();
+
+    auto opener  = _config->stream_opener();
+    auto &o_args = (!args.empty()) ? args : _config->stream_opener_args();
     
     if (opener.empty()) {
         std::string err_msg = "No stream opener specified: have a look at ";
@@ -67,12 +69,15 @@ void stream_opener::run(const std::string &stream)
     
     int fd = open(path, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
-        std::string err_msg = "Failed to create \"";
+        std::string err_msg = "Failed to create output file \"";
         err_msg += path;
-        err_msg += "\" output file - ";
+        err_msg += "\" - ";
         err_msg += strerror_safe(errno);
+        
         throw std::runtime_error(err_msg);
     }
+    
+    resource_guard<int, int(int)> c1(fd, &close);
     
     std::cout << "Redirecting stdout and stderr of \"" << opener 
               << "\" to file \"" << path << "\"." << std::endl;
@@ -89,13 +94,11 @@ void stream_opener::run(const std::string &stream)
         throw std::runtime_error(err_msg);
     }
     
-    if (pid > 0) {
-        close(fd);
+    if (pid > 0)
         return;
-    }
     
     close(STDIN_FILENO);
-    
+
     try {
         const int fds[] = { STDOUT_FILENO, STDERR_FILENO };
         
@@ -110,25 +113,29 @@ void stream_opener::run(const std::string &stream)
                 err_msg += "\" - ";
                 err_msg += strerror_safe(errno);
                 err_msg += ".";
+                
                 throw std::runtime_error(err_msg);
             }
         }
         
         /* 'char *const argv[]' is kind of a funny interface ... */
         
-        int argc = args.size() + 3;
+        int argc = o_args.size() + 3;
+        
         const char **argv = (const char **) std::calloc(argc, sizeof(*argv));
         if (!argv)
             throw std::runtime_error("stream-opener: out of memory.");
         
+        resource_guard<void *, void(void *)> c2((void *) argv, &free);
+        
         argv[0] = opener.c_str();
         argv[1] = url.c_str();
         
-        for (std::size_t i = 0; i < args.size(); ++i)
-            argv[i + 2] = args[i].c_str();
-
+        for (std::size_t i = 0; i < o_args.size(); ++i)
+            argv[i + 2] = o_args[i].c_str();
+        
         execve(opener.c_str(), (char ** const) argv, environ);
-    
+
         std::string err_msg("stream-opener: failed to execute process \"");
         err_msg += opener;
         err_msg += "\" - ";
@@ -142,3 +149,4 @@ void stream_opener::run(const std::string &stream)
         std::exit(EXIT_FAILURE);
     }
 }
+

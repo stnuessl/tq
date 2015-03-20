@@ -21,6 +21,8 @@
 #ifndef _STREAM_OPENER_HPP_
 #define _STREAM_OPENER_HPP_
 
+#include <string>
+#include <vector>
 #include <memory>
 
 #include "config.hpp"
@@ -29,7 +31,7 @@ class stream_opener {
 public:
     explicit stream_opener(std::shared_ptr<const config> conf);
     
-    void run(const std::string &stream);
+    void run(const std::string &stream, const std::vector<std::string> &args);
     
 private:
     std::shared_ptr<const config> _config;
