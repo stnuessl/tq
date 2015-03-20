@@ -54,7 +54,7 @@
 #define DESC_TOP       "Get a list of the currently top played games."
 #define DESC_VERBOSE   "Retrieve more information about queried items."
 #define DESC_OPEN      "Open the stream for watching."
-#define DESC_OPEN_ARGS "Additional arguments passed to the opener."
+#define DESC_OPEN_ARGS "Overwrite the arguments passed to the stream-opener."
 
 #define VAL(arg)                                                               \
     opt::value((arg))
