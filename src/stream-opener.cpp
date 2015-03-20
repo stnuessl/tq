@@ -77,7 +77,7 @@ void stream_opener::run(const std::string &stream,
         throw std::runtime_error(err_msg);
     }
     
-    resource_guard<int, int(int)> c1(fd, &close);
+    auto c1 = make_resource_guard(fd, &close);
     
     std::cout << "Redirecting stdout and stderr of \"" << opener 
               << "\" to file \"" << path << "\"." << std::endl;
@@ -126,7 +126,7 @@ void stream_opener::run(const std::string &stream,
         if (!argv)
             throw std::runtime_error("stream-opener: out of memory.");
         
-        resource_guard<void *, void(void *)> c2((void *) argv, &free);
+        auto c2 = make_resource_guard((void *)argv, &std::free);
         
         argv[0] = opener.c_str();
         argv[1] = url.c_str();

@@ -22,6 +22,7 @@
 #define _RESOURCE_GUARD_HPP_
 
 #include <functional>
+#include <utility>
 #include <stdexcept>
 
 /* Useful class when interfacing with pure C resources */
@@ -30,10 +31,10 @@ template <typename T1, typename T2>
 class resource_guard {
 public:
     explicit resource_guard(T1 x, std::function<T2> func);
+    resource_guard(resource_guard<T1, T2> &&other);
     ~resource_guard();
     
     resource_guard(const resource_guard<T1, T2> &other) = delete;
-    resource_guard(resource_guard<T1, T2> &&other) = delete;
     
     resource_guard<T1, T2> &
     operator=(const resource_guard<T1, T2> &other) = delete;
@@ -52,9 +53,28 @@ resource_guard<T1, T2>::resource_guard(T1 x, std::function<T2> func)
 }
 
 template <typename T1, typename T2>
+resource_guard<T1, T2>::resource_guard(resource_guard<T1, T2> &&other)
+    : _x(std::move(other._x)),
+      _func(std::move(other._func))
+{
+    other._func = nullptr;
+}
+
+template <typename T1, typename T2>
 resource_guard<T1, T2>::~resource_guard()
 {
-    _func(_x);
+    /* 
+     * By using the move constructor there can be objects which do not have
+     * to clean up anything
+     */
+    if (_func)
+        _func(_x);
+}
+
+template <typename T1, typename T2>
+resource_guard<T1, T2> make_resource_guard(T1 x, T2 *func)
+{
+    return resource_guard<T1, T2>(x, func);
 }
 
 #endif /* _RESOURCE_GUARD_HPP_ */
