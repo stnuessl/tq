@@ -67,7 +67,7 @@ void stream_opener::run(const std::string &stream,
         throw std::runtime_error(err_msg);
     }
     
-    int fd = open(path, O_WRONLY | O_CREAT, 0644);
+    int fd = open(path, O_WRONLY | O_CREAT | O_CLOEXEC, 0644);
     if (fd < 0) {
         std::string err_msg = "Failed to create output file \"";
         err_msg += path;
