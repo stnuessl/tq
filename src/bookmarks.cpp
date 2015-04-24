@@ -129,21 +129,16 @@ std::vector<std::string> bookmarks::read() const
     std::string line;
     
     while(std::getline(reader, line)) {
-        
-        if (line[0] == '#' || line[0] == ';')
-            continue;
-
         trim_spaces(line);
         
-        if (!line.empty())
+        if (!line.empty() && line[0] != '#' && line[0] != ';')
             ret.push_back(std::move(line));
     }
     
     return ret;
 }
 
-void bookmarks::write(std::vector<std::string> &vec, 
-                      string_ptr_set &set) const
+void bookmarks::write(std::vector<std::string> &vec, string_ptr_set &set) const
 {
     std::ofstream writer(c_str(), std::ios::out);
     
