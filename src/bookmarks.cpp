@@ -25,8 +25,23 @@
 #include "query.hpp"
 #include "bookmarks.hpp"
 
+static void trim_spaces(std::string &str)
+{
+    /* remove all leading and trailing whitespaces */
+    auto it = str.begin();
+    
+    while (it != str.cend() && std::isspace(*it))
+        ++it;
+    
+    str.erase(str.begin(), it);
+    
+    while (!str.empty() && std::isspace(str.back()))
+        str.pop_back();
+}
+
 bookmarks::bookmarks(const std::string &path)
-    : file(path){
+    : file(path)
+{
 }
 
 void bookmarks::add(const std::string &name)
@@ -44,7 +59,7 @@ void bookmarks::add(const std::vector<std::string> &names)
     auto favs = read();
     
     favs.insert(favs.end(), names.begin(), names.end());
-    
+
     write(favs, set);
 }
 
@@ -108,8 +123,6 @@ std::size_t bookmarks::hash::operator() (const std::string *a) const
 
 std::vector<std::string> bookmarks::read() const
 {
-    auto predicate = [](char c) { return !std::isalnum(c); };
-    
     std::vector<std::string> ret;
     
     std::ifstream reader(c_str(), std::ios::in);
@@ -119,24 +132,24 @@ std::vector<std::string> bookmarks::read() const
         
         if (line[0] == '#' || line[0] == ';')
             continue;
+
+        trim_spaces(line);
         
-        auto begin = line.begin();
-        auto end   = line.end();
-        
-        line.erase(std::remove_if(begin, end, predicate), line.end());
-        
-        ret.push_back(std::move(line));
+        if (!line.empty())
+            ret.push_back(std::move(line));
     }
     
     return ret;
 }
 
-void bookmarks::write(const std::vector<std::string> &vec, 
+void bookmarks::write(std::vector<std::string> &vec, 
                       string_ptr_set &set) const
 {
     std::ofstream writer(c_str(), std::ios::out);
     
     for (auto &x : vec) {
+        trim_spaces(x);
+        
         if (set.count(&x) == 0) {
             writer << x << "\n";
             set.insert(&x);
