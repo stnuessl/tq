@@ -150,7 +150,7 @@ void bookmarks::write(std::vector<std::string> &vec,
     for (auto &x : vec) {
         trim_spaces(x);
         
-        if (set.count(&x) == 0) {
+        if (!x.empty() && set.count(&x) == 0) {
             writer << x << "\n";
             set.insert(&x);
         }
