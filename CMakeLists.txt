@@ -34,7 +34,7 @@ set(SRC
 
 find_package(CURL REQUIRED)
 find_package(JSONCPP REQUIRED)
-find_package(Boost 1.40 
+find_package(Boost
              COMPONENTS program_options filesystem system
              REQUIRED)
 
