@@ -140,6 +140,8 @@ std::vector<std::string> bookmarks::read() const
 
 void bookmarks::write(std::vector<std::string> &vec, string_ptr_set &set) const
 {
+    std::sort(vec.begin(), vec.end());
+    
     std::ofstream writer(c_str(), std::ios::out);
     
     for (auto &x : vec) {
