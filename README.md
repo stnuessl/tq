@@ -29,14 +29,13 @@ and I always end up hitting the wrong buttons because the website is still
 rearranging stuff which is really annoying. Also, I prefer watching twitch using 
 [livestreamer](https://livestreamer.readthedocs.org/en/latest/) and 
 [vlc](http://www.videolan.org/vlc/). I wanted a tool which lets me track my 
-prefered streams without using the website and an twitch account and therefore 
+prefered streams without using the website and a twitch account and therefore 
 created tq.
 
 ## Installation
 
-This section describes how to install tq on your machine. However, I use for my
-day to day tasks Arch Linux which is why you could run into trouble using a
-different GNU/Linux distribution.
+This section describes how to compile and install tq on a few selected Linux
+distributions. 
 
 ### Dependencies
 
