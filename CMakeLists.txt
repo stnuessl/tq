@@ -18,20 +18,6 @@ set(CMAKE_INSTALL_PREFIX /usr/local)
 set(TARGET_INSTALL_DIR bin)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
-
-set(SRC 
-    src/bookmarks.cpp
-    src/config.cpp
-    src/file.cpp
-    src/main.cpp
-    src/query.cpp
-    src/response-printer.cpp
-    src/stream-opener.cpp
-    src/url-client.cpp
-    )
-
-# find_package(PkgConfig REQUIRED)
-
 find_package(CURL REQUIRED)
 find_package(JSONCPP REQUIRED)
 find_package(Boost
@@ -56,7 +42,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 # link_directories(${CMAKE_LIBRARY_PATH})
 
-add_executable(tq ${SRC})
+add_executable(tq
+    src/bookmarks.cpp
+    src/config.cpp
+    src/file.cpp
+    src/main.cpp
+    src/query.cpp
+    src/response-printer.cpp
+    src/stream-opener.cpp
+    src/url-client.cpp
+)
 
 target_link_libraries(tq ${CURL_LIBRARIES})
 target_link_libraries(tq ${JSONCPP_LIBRARIES})
