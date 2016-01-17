@@ -143,7 +143,7 @@ Run the following command to get a list of the currently most played games
 ### Get descriptive output
 
 If you do not know what the output of the program means you can 
-add the __--descriptive flag to the program arguments to get additional 
+add the __--descriptive__ flag to the program arguments to get additional 
 information, e.g.:
 
 ```
@@ -199,12 +199,39 @@ and games respectively:
 Probably, the most useful command is searching for streams that features a game of
 your choice. __tq -s__ automatically searchs for such streams too.
 
+### Bookmarks
+
+Streams can be added as bookmarks to __tq__.
+
+```
+    $ tq -a [stream-name]
+```
+
+Streams added as bookmarks can then be queried by __tq__ with:
+
+```
+    $ tq -b
+```
+
+To get a list of all your current bookmarks:
+
+```
+    $ tq --get-bookmarks
+```
+
+To remove a bookmark:
+
+```
+    $ tq -r [stream-name]
+```
+
+
 ### Nota bene
 
 All options except __--limit__ are able to take multiple arguments, e.g.
 
 ```
-    $ tq -C channel1 channel2 channel3
+    $ tq -C [channel-name1] [channel-name2] ...
 ```
 
 will print out information about all three channels.

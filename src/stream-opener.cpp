@@ -23,19 +23,22 @@
 #include <cstdlib>
 #include <cerrno>
 
-
 #include <string.h>
-#include <unistd.h>
 #include <stdio.h>
+
+#ifdef __linux__
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 
 #include "resource_guard.hpp"
 #include "stream-opener.hpp"
 
+#ifdef __linux__
 extern char **environ;
-
+#endif
 
 static const char *strerror_safe(int errnum)
 {
@@ -52,7 +55,8 @@ stream_opener::stream_opener(const std::shared_ptr<const config> conf)
 void stream_opener::run(const std::string &stream, 
                         const std::vector<std::string> &args)
 {
-    static const char path[] = "/tmp/tq-stream-opener.txt";
+#ifdef __linux__
+    static const char dir[] = "/tmp/";
     const std::string url("www.twitch.tv/" + stream);
 
     auto opener  = _config->stream_opener();
@@ -67,7 +71,16 @@ void stream_opener::run(const std::string &stream,
         throw std::runtime_error(err_msg);
     }
     
-    int fd = open(path, O_WRONLY | O_CREAT | O_CLOEXEC, 0644);
+    auto path = std::string();
+    
+    path.reserve(32);
+    path += dir;
+    path += std::to_string(getuid());
+    path += "-tq-";
+    path += basename(opener.c_str());
+    path += ".log";
+
+    int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC, 0644);
     if (fd < 0) {
         std::string err_msg = "Failed to create output file \"";
         err_msg += path;
@@ -86,7 +99,6 @@ void stream_opener::run(const std::string &stream,
     
     /* fork a child and start the stream-opener process */
     pid_t pid = fork();
-    
     if (pid == (pid_t) -1) {
         std::string err_msg = "forking stream-opener process failed - ";
         err_msg += strerror_safe(errno);
@@ -148,5 +160,8 @@ void stream_opener::run(const std::string &stream,
         dprintf(fd, "%s\n", e.what());
         std::exit(EXIT_FAILURE);
     }
+#else
+    throw std::runtime_error("Feature only implemented for GNU/Linux");
+#endif
 }
 
