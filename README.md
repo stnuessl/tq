@@ -19,6 +19,7 @@ streams and channels on the [twitch.tv](http://www.twitch.tv) website.
     * [Query featured streams](https://github.com/stnuessl/tq#query-featured-streams)
     * [Retrieve information about a channel / stream](https://github.com/stnuessl/tq#retrieve-information-about-a-channel--stream)
     * [Search for channels / streams / games](https://github.com/stnuessl/tq#search-for-channels--streams--games)
+    * [Bookmarks](https://github.com/stnuessl/tq#bookmarks)
     * [Nota bene](https://github.com/stnuessl/tq#nota-bene)
 * [Bugs and bug reports](https://github.com/stnuessl/tq#bugs-and-bug-reports)
 
