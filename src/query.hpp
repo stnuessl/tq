@@ -36,6 +36,7 @@ public:
         TYPE_SEARCH_S,
         TYPE_STREAMS,
         TYPE_TOP,
+        TYPE_USER,
     };
     
     typedef std::pair<const query::type, const std::string> response;
@@ -54,6 +55,7 @@ public:
     response streams(const std::string &name);
     response streams(const std::vector<std::string> &names);
     response top(unsigned int limit = default_limit);
+    response user(const std::string &name);
 private:
     static void throw_if_invalid_name(const std::string &str);
     static void throw_if_invalid_limit(unsigned int limit);

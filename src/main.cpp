@@ -52,6 +52,7 @@
 #define DESC_SEARCH_S  "Search for streams."
 #define DESC_STREAMS   "Retrieve information about a steam. Stream must be live."
 #define DESC_TOP       "Get a list of the currently top played games."
+#define DESC_USER      "Retrieve information about a user."
 #define DESC_VERBOSE   "Retrieve more information about queried items."
 #define DESC_OPEN      "Open the stream for watching."
 #define DESC_OPEN_ARGS "Overwrite the arguments passed to the stream-opener."
@@ -74,6 +75,7 @@ struct args {
     std::vector<std::string> stream_vec {};
     std::vector<std::string> open_vec {};
     std::vector<std::string> open_args_vec {};
+    std::vector<std::string> user_vec {};
     bool live = false;
     bool json = false;
     bool verbose = false;
@@ -121,6 +123,7 @@ int main(int argc, char *argv[])
         ("search-streams,s",  VAL_MUL(&args.s_stream_vec),  DESC_SEARCH_S)
         ("streams,S",         VAL_MUL(&args.stream_vec),    DESC_STREAMS)
         ("top,t",                                           DESC_TOP)
+        ("user,u",             VAL_MUL(&args.user_vec),     DESC_USER)
         ("verbose,v",                                       DESC_VERBOSE);
 
     try {
@@ -179,6 +182,9 @@ int main(int argc, char *argv[])
         
         if (argv_map.count("top"))
             response_vec.push_back(query.top(args.limit));
+        
+        for (const auto &x : args.user_vec)
+            response_vec.push_back(query.user(x));
         
         /* Print responses from server */
         for (const auto &x : response_vec)

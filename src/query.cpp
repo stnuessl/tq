@@ -147,6 +147,20 @@ query::response query::top(unsigned int limit)
     return response(query::TYPE_TOP, str);
 }
 
+query::response query::user(const std::__cxx11::string &name)
+{
+    throw_if_invalid_name(name);
+    
+    std::string url(BASE_URL "users/");
+    
+    url += name;
+    
+    auto str = _client.get_response(url);
+    
+    return response(query::TYPE_USER, str);
+}
+
+
 void query::throw_if_invalid_name(const std::string &str)
 {
     auto pred = [](char c) { return std::isspace(c); };

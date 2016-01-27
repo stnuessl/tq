@@ -96,20 +96,12 @@ void response_printer::print_response(const query::response &response)
     case query::TYPE_TOP:
         print_top(val);
         break;
+    case query::TYPE_USER:
+        print_user(val);
+        break;
     default:
         throw std::invalid_argument("Invalid response type");
     }
-}
-
-void response_printer::print_top(const Json::Value &val)
-{
-    std::cout << "[ Top ]:\n";
-    
-    if (_descriptive)
-        print_top_game_header();
-    
-    for (auto &x : val["top"])
-        print_top_game(x);
 }
 
 void response_printer::print_channels(const Json::Value &val)
@@ -294,6 +286,42 @@ void response_printer::print_streams(const Json::Value& val)
             std::cout << "  Stream [ " << name << " ]: offline\n";
     }
 }
+
+void response_printer::print_top(const Json::Value &val)
+{
+    std::cout << "[ Top ]:\n";
+    
+    if (_descriptive)
+        print_top_game_header();
+    
+    for (auto &x : val["top"])
+        print_top_game(x);
+}
+
+void response_printer::print_user(const Json::Value &user)
+{
+    auto display_name = user["display_name"].asString();
+    auto name         = user["name"].asString();
+    auto created_at   = user["created_at"].asString();
+    auto bio          = user["bio"].asString();
+    auto id           = user["_id"].asUInt64();
+    
+    /* 
+     * String is of the form "YYYY-MM-DDTHH:MM:SSZ"
+     * Trimming it makes it to "YYYY-MM-DD" 
+     * which is sufficient here
+     */
+    auto at = created_at.find('T');
+    if (at != std::string::npos)
+        trim_string(created_at, at);
+    
+    std::cout << "  User [ " << display_name << " ]:\n"
+              << "      Name       : " << name << "\n"
+              << "      Created at : " << created_at << "\n"
+              << "      ID         : " << id << "\n"
+              << "      Biography  : " << bio << std::endl;
+}
+
 
 void response_printer::print_channel_full(const Json::Value &channel)
 {

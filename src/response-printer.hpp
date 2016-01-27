@@ -45,6 +45,7 @@ private:
     void print_search_streams(const Json::Value &val);
     void print_streams(const Json::Value &val);
     void print_top(const Json::Value &val);
+    void print_user(const Json::Value &user);
     
     void print_channel_full(const Json::Value &channel);
     void print_channel_short(const Json::Value &channel);
