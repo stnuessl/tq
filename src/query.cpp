@@ -147,7 +147,7 @@ query::response query::top(unsigned int limit)
     return response(query::TYPE_TOP, str);
 }
 
-query::response query::user(const std::__cxx11::string &name)
+query::response query::user(const std::string &name)
 {
     throw_if_invalid_name(name);
     
