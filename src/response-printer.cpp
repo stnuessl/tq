@@ -33,6 +33,18 @@ static void trim_string(std::string &str, unsigned int size)
         str.erase(size);
 }
 
+static void sanitize_time_string(std::string &str)
+{
+    /* 
+     * String is of the form "YYYY-MM-DDTHH:MM:SSZ"
+     * Sanitizing it makes it to "YYYY-MM-DD" 
+     * which is sufficient here
+     */
+    auto at = str.find('T');
+    if (at != std::string::npos)
+        str.erase(at);
+}
+
 response_printer::response_printer(std::shared_ptr<const config> conf, 
                                    bool json, bool verbose, bool descriptive)
     : _reader(),
@@ -300,26 +312,22 @@ void response_printer::print_top(const Json::Value &val)
 
 void response_printer::print_user(const Json::Value &user)
 {
-    auto display_name = user["display_name"].asString();
-    auto name         = user["name"].asString();
-    auto created_at   = user["created_at"].asString();
-    auto bio          = user["bio"].asString();
-    auto id           = user["_id"].asUInt64();
+    const auto display_name = user["display_name"].asString();
+    const auto name         = user["name"].asString();
+    const auto bio          = user["bio"].asString();
+    const auto id           = user["_id"].asUInt64();
+    auto created_at         = user["created_at"].asString();
+    auto updated_at         = user["updated_at"].asString();
     
-    /* 
-     * String is of the form "YYYY-MM-DDTHH:MM:SSZ"
-     * Trimming it makes it to "YYYY-MM-DD" 
-     * which is sufficient here
-     */
-    auto at = created_at.find('T');
-    if (at != std::string::npos)
-        trim_string(created_at, at);
+    sanitize_time_string(created_at);
+    sanitize_time_string(updated_at);
     
     std::cout << "  User [ " << display_name << " ]:\n"
               << "      Name       : " << name << "\n"
-              << "      Created at : " << created_at << "\n"
               << "      ID         : " << id << "\n"
-              << "      Biography  : " << bio << std::endl;
+              << "      Biography  : " << bio << "\n"
+              << "      Created at : " << created_at << "\n"
+              << "      Updated at : " << updated_at << std::endl;
 }
 
 
@@ -327,21 +335,28 @@ void response_printer::print_channel_full(const Json::Value &channel)
 {
     const auto name     = channel["name"].asString();
     const auto status   = channel["status"].asString();
-    const auto url      = channel["url"].asString();
     const auto id       = channel["_id"].asUInt64();
+    const auto url      = channel["url"].asString();
     const auto game     = channel["game"].asString();
     const auto delay    = channel["delay"].asInt();
     const auto mature   = (channel["mature"].asBool()) ? "yes" : "no";
     const auto language = channel["language"].asString();
+    auto created_at     = channel["created_at"].asString();
+    auto updated_at     = channel["updated_at"].asString();
+    
+    sanitize_time_string(created_at);
+    sanitize_time_string(updated_at);
     
     std::cout << "  Channel [ " << name << " ]:"    << "\n"
-              << "      Status   : " << status      << "\n"
-              << "      ID       : " << id          << "\n"
-              << "      Url      : " << url         << "\n"
-              << "      Game     : " << game        << "\n"
-              << "      Delay    : " << delay       << " s\n"
-              << "      Mature   : " << mature      << "\n"
-              << "      Language : " << language    << std::endl;    
+              << "      Status     : " << status      << "\n"
+              << "      ID         : " << id          << "\n"
+              << "      Url        : " << url         << "\n"
+              << "      Game       : " << game        << "\n"
+              << "      Delay      : " << delay       << " s\n"
+              << "      Mature     : " << mature      << "\n"
+              << "      Language   : " << language    << "\n"
+              << "      Created at : " << created_at  << "\n"
+              << "      Updated at : " << updated_at  << std::endl;
 }
 
 void response_printer::print_channel_short(const Json::Value &channel)
