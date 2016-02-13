@@ -27,7 +27,7 @@
 
 #define BASE_URL "https://api.twitch.tv/kraken/"
 
-const unsigned int query::default_limit = 10;
+const unsigned int query::default_limit = 25;
 
 query::query()
     : _client()
