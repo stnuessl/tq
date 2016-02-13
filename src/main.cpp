@@ -80,7 +80,7 @@ struct args {
     bool json = false;
     bool verbose = false;
     bool desc = false;
-    unsigned int limit = 0;
+    unsigned int limit = query::default_limit;
 };
 
 const std::string home(std::getenv("HOME"));
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         ("search-streams,s",  VAL_MUL(&args.s_stream_vec),  DESC_SEARCH_S)
         ("streams,S",         VAL_MUL(&args.stream_vec),    DESC_STREAMS)
         ("top,t",                                           DESC_TOP)
-        ("user,u",             VAL_MUL(&args.user_vec),     DESC_USER)
+        ("user,u",            VAL_MUL(&args.user_vec),      DESC_USER)
         ("verbose,v",                                       DESC_VERBOSE);
 
     try {
