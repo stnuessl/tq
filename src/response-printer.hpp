@@ -32,11 +32,22 @@
 
 class response_printer {
 public:
-    explicit response_printer(std::shared_ptr<const config> conf, 
-                              bool json = false, bool verbose = false, 
-                              bool descriptive = false);
+    static const unsigned int default_max_integer_length;
+    static const unsigned int default_max_name_length;
+    static const unsigned int default_max_game_length;
+
+    response_printer();
+    
+    void set_max_integer_length(unsigned int len);
+    void set_max_name_length(unsigned int len);
+    void set_max_game_length(unsigned int len);
+    void set_section(bool val);
+    void set_verbose(bool val);
+    void set_descriptive(bool val);
+    void set_json(bool val);
     
     void print_response(const query::response &response);
+    
 private:
     void print_channels(const Json::Value &val);
     void print_featured(const Json::Value &val);
@@ -64,9 +75,10 @@ private:
     unsigned int _name_len;
     unsigned int _game_len;
     
-    bool _json;
+    bool _section;
     bool _verbose;
     bool _descriptive;
+    bool _json;
 };
 
 #endif /* _RESPONSE_PRINTER_HPP_ */

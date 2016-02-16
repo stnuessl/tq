@@ -26,6 +26,7 @@
 
 #include "config.hpp"
 #include "query.hpp"
+#include "response-printer.hpp"
 
 namespace opt = boost::program_options;
 
@@ -36,9 +37,10 @@ config::config(const std::string &path)
       _json(false),
       _verbose(false),
       _descriptive(false),
-      _int_len(11),
-      _name_len(20),
-      _game_len(40),
+      _section(true),
+      _int_len(response_printer::default_max_integer_length),
+      _name_len(response_printer::default_max_name_length),
+      _game_len(response_printer::default_max_game_length),
       _opener(),
       _args()
 {
@@ -50,6 +52,7 @@ config::config(const std::string &path)
         ("args.json",              opt::value(&_json))
         ("args.verbose",           opt::value(&_verbose))
         ("args.descriptive",       opt::value(&_descriptive))
+        ("args.section",           opt::value(&_section))
         ("printer.integer-length", opt::value(&_int_len))
         ("printer.name-length",    opt::value(&_name_len))
         ("printer.game-length",    opt::value(&_game_len))
@@ -72,9 +75,10 @@ config::config(const std::string &path)
             o_file << "[args]\n"
                    << "limit       = " << _limit        << "\n"
                    << "live        = " << _live         << "\n"
-                   << "json        = " << _json         << "\n"
+                   << "section     = " << _section      << "\n"
                    << "verbose     = " << _verbose      << "\n"
-                   << "descriptive = " << _descriptive  << "\n\n"
+                   << "descriptive = " << _descriptive  << "\n"
+                   << "json        = " << _json         << "\n\n"
                    << "[printer]\n"
                    << "integer-length = " << _int_len     << "\n"
                    << "name-length    = " << _name_len    << "\n"
@@ -119,6 +123,11 @@ bool config::verbose() const
 bool config::descriptive() const
 {
     return _descriptive;
+}
+
+bool config::section() const
+{
+    return _section;
 }
 
 unsigned int config::integer_length() const

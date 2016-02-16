@@ -46,6 +46,7 @@
 #define DESC_JSON      "Pretty print the json strings sent from the server."
 #define DESC_LIMIT     "Set the number of returned results."
 #define DESC_LIVE      "If searching for games: list only games that are live."
+#define DESC_NO_SEC    "Do not print a section header, if applicable."
 #define DESC_REMOVE_B  "Remove a bookmark."
 #define DESC_SEARCH_C  "Search for channels."
 #define DESC_SEARCH_G  "Search for games."
@@ -80,6 +81,7 @@ struct args {
     bool json = false;
     bool verbose = false;
     bool desc = false;
+    bool no_section = false;
     unsigned int limit = query::default_limit;
 };
 
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
         ("json,j",                                          DESC_JSON)
         ("limit",             VAL(&args.limit),             DESC_LIMIT)
         ("live",                                            DESC_LIVE)
+        ("no-section",                                      DESC_NO_SEC)
         ("open,o",            VAL_MUL(&args.open_vec),      DESC_OPEN)
         ("open-args",         VAL_MUL(&args.open_args_vec), DESC_OPEN_ARGS)
         ("remove-bookmark,r", VAL_MUL(&args.remove_vec),    DESC_REMOVE_B)
@@ -138,15 +141,23 @@ int main(int argc, char *argv[])
             std::exit(EXIT_SUCCESS);
         }
         
+        args.live = argv_map.count("live") > 0 || conf->live();
+        args.no_section = argv_map.count("no-section") > 0 || !conf->section();
         args.verbose = argv_map.count("verbose") > 0 || conf->verbose();
-        args.json    = argv_map.count("json") > 0 || conf->json();
-        args.live    = argv_map.count("live") > 0 || conf->live();
-        args.desc    = argv_map.count("descriptive") > 0 || conf->descriptive();
+        args.desc = argv_map.count("descriptive") > 0 || conf->descriptive();
+        args.json = argv_map.count("json") > 0 || conf->json();
 
         for (const auto &x : args.open_vec)
             stream_opener.run(x, args.open_args_vec);
         
-        response_printer printer(conf, args.json, args.verbose, args.desc);
+        auto printer = response_printer();
+        printer.set_max_integer_length(conf->integer_length());
+        printer.set_max_name_length(conf->name_length());
+        printer.set_max_game_length(conf->game_length());
+        printer.set_section(!args.no_section);
+        printer.set_verbose(args.verbose);
+        printer.set_descriptive(args.desc);
+        printer.set_json(args.json);
         
         if (argv_map.count("add-bookmark"))
             bookmarks.add(args.add_vec);

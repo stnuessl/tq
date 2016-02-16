@@ -36,6 +36,7 @@ public:
     bool json() const;
     bool verbose() const;
     bool descriptive() const;
+    bool section() const;
     
     unsigned int integer_length() const;
     unsigned int name_length() const;
@@ -50,6 +51,7 @@ private:
     bool _json;
     bool _verbose;
     bool _descriptive;
+    bool _section;
     
     unsigned int _int_len;
     unsigned int _name_len;

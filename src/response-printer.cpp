@@ -45,18 +45,58 @@ static void sanitize_time_string(std::string &str)
         str.erase(at);
 }
 
-response_printer::response_printer(std::shared_ptr<const config> conf, 
-                                   bool json, bool verbose, bool descriptive)
+const unsigned int response_printer::default_max_integer_length = 11;
+const unsigned int response_printer::default_max_name_length = 20;
+const unsigned int response_printer::default_max_game_length = 40;
+
+response_printer::response_printer()
     : _reader(),
-      _int_len(conf->integer_length()),
-      _name_len(conf->name_length()),
-      _game_len(conf->game_length()),
-      _json(json),
-      _verbose(verbose),
-      _descriptive(descriptive)
+      _int_len(default_max_integer_length),
+      _name_len(default_max_name_length),
+      _game_len(default_max_game_length),
+      _section(false),
+      _verbose(false),
+      _descriptive(false),
+      _json(false)
 {
 
 }
+
+void response_printer::set_max_integer_length(unsigned int len)
+{
+    _int_len = len;
+}
+
+void response_printer::set_max_name_length(unsigned int len)
+{
+    _name_len = len;
+}
+
+void response_printer::set_max_game_length(unsigned int len)
+{
+    _game_len = len;
+}
+
+void response_printer::set_json(bool val)
+{
+    _json = val;
+}
+
+void response_printer::set_verbose(bool val)
+{
+    _verbose = val;
+}
+
+void response_printer::set_descriptive(bool val)
+{
+    _descriptive = val;
+}
+
+void response_printer::set_section(bool val)
+{
+    _section = val;
+}
+
 
 void response_printer::print_response(const query::response &response)
 {
@@ -93,13 +133,13 @@ void response_printer::print_response(const query::response &response)
     case query::TYPE_FEATURED:
         print_featured(val);
         break;
-    case query::TYPE_SEARCH_C:
+    case query::TYPE_SEARCH_CHANNELS:
         print_search_channels(val);
         break;
-    case query::TYPE_SEARCH_G:
+    case query::TYPE_SEARCH_GAMES:
         print_search_games(val);
         break;
-    case query::TYPE_SEARCH_S:
+    case query::TYPE_SEARCH_STREAMS:
         print_search_streams(val);
         break;
     case query::TYPE_STREAMS:
@@ -123,7 +163,8 @@ void response_printer::print_channels(const Json::Value &val)
 
 void response_printer::print_featured(const Json::Value& val)
 {
-    std::cout << "[ Featured ]:\n";
+    if (_section)
+        std::cout << "[ Featured ]:\n";
     
     auto list = val["featured"];
 
@@ -197,9 +238,10 @@ void response_printer::print_game_header() const
               << "" << std::setfill(' ') << std::endl;
 }
 
-void response_printer::print_search_channels(const Json::Value& val)
+void response_printer::print_search_channels(const Json::Value &val)
 {
-    std::cout << "[ Search Channels ]:\n";
+    if (_section)
+        std::cout << "[ Search Channels ]:\n";
     
     auto channels = val["channels"];
     
@@ -215,9 +257,10 @@ void response_printer::print_search_channels(const Json::Value& val)
     }   
 }
 
-void response_printer::print_search_games(const Json::Value& val)
+void response_printer::print_search_games(const Json::Value &val)
 {
-    std::cout << "[ Search Games ]:\n";
+    if (_section)
+        std::cout << "[ Search Games ]:\n";
     
     if (_descriptive)
         print_game_header();
@@ -232,9 +275,10 @@ void response_printer::print_search_games(const Json::Value& val)
     }
 }
 
-void response_printer::print_search_streams(const Json::Value& val)
+void response_printer::print_search_streams(const Json::Value &val)
 {
-    std::cout << "[ Search Streams ]:\n";
+    if (_section)
+        std::cout << "[ Search Streams ]:\n";
     
     auto streams = val["streams"];
     
@@ -266,7 +310,8 @@ void response_printer::print_streams(const Json::Value& val)
         received_streams[name] = &x;
     }
     
-    std::cout << "[ Streams ]:\n";
+    if (_section)
+        std::cout << "[ Streams ]:\n";
     
     /* 
      * Iterate over all queried streams and print them.
@@ -301,7 +346,8 @@ void response_printer::print_streams(const Json::Value& val)
 
 void response_printer::print_top(const Json::Value &val)
 {
-    std::cout << "[ Top ]:\n";
+    if (_section)
+        std::cout << "[ Top ]:\n";
     
     if (_descriptive)
         print_top_game_header();

@@ -71,7 +71,7 @@ query::response query::search_channels(const std::string &name,
     
     auto str = _client.get_response(url);
     
-    return response(query::TYPE_SEARCH_C, str);
+    return response(query::TYPE_SEARCH_CHANNELS, str);
 }
 
 query::response query::search_games(const std::string &name, bool live)
@@ -85,7 +85,7 @@ query::response query::search_games(const std::string &name, bool live)
     
     auto str = _client.get_response(url);
     
-    return response(query::TYPE_SEARCH_G, str);
+    return response(query::TYPE_SEARCH_GAMES, str);
 }
 
 
@@ -102,7 +102,7 @@ query::response query::search_streams(const std::string &name,
     
     auto str = _client.get_response(url);
     
-    return response(query::TYPE_SEARCH_S, str);
+    return response(query::TYPE_SEARCH_STREAMS, str);
 }
 
 query::response query::streams(const std::string &name)

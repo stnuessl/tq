@@ -31,9 +31,9 @@ public:
     enum type {
         TYPE_CHANNELS,
         TYPE_FEATURED,
-        TYPE_SEARCH_C,
-        TYPE_SEARCH_G,
-        TYPE_SEARCH_S,
+        TYPE_SEARCH_CHANNELS,
+        TYPE_SEARCH_GAMES,
+        TYPE_SEARCH_STREAMS,
         TYPE_STREAMS,
         TYPE_TOP,
         TYPE_USER,
