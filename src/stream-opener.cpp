@@ -57,7 +57,12 @@ void stream_opener::run(const std::string &stream,
 {
 #ifdef __linux__
     static const char dir[] = "/tmp/";
-    const std::string url("www.twitch.tv/" + stream);
+    std::string url = "www.twitch.tv/";
+    
+    auto at = stream.find_last_of('/');
+    
+    at = (at != std::string::npos) ? at + 1 : 0;
+    url.append(stream, at, std::string::npos);
 
     auto opener  = _config->stream_opener();
     auto &o_args = (!args.empty()) ? args : _config->stream_opener_args();

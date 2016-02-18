@@ -3,11 +3,15 @@ cmake_minimum_required(VERSION 2.6)
 # project name
 project(tq)
 
-# add_definitions(-D_GNU_SOURCE)
-add_definitions(-Wall -Wextra)
-add_definitions(-Wpedantic -Weffc++)
-add_definitions(-O2 -DNDEBUG)
-#add_definitions(-g3)
+add_definitions(
+    -Wall 
+    -Wextra
+    -Wpedantic
+    -Weffc++
+    -O2
+    -DNDEBUG
+#     -g3
+)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
