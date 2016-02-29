@@ -296,18 +296,13 @@ void response_printer::print_search_streams(const Json::Value &val)
 
 void response_printer::print_streams(const Json::Value& val)
 {
-    static const std::string s_channel = "channel=";
-    std::map<std::string, const Json::Value *> received_streams;
-    static const std::string s_seperator = "%2C";
-    auto streams = val["streams"];
-    auto self    = val["_links"]["self"].asString();
-    
-    
+    auto stream_map = std::unordered_map<std::string, const Json::Value *>();
+
     /* gather all returned streams */
-    for (auto &x : streams) {
+    for (auto &x : val["streams"]) {
         const auto name = x["channel"]["name"].asString();
         
-        received_streams[name] = &x;
+        stream_map[name] = &x;
     }
     
     if (_section)
@@ -317,27 +312,33 @@ void response_printer::print_streams(const Json::Value& val)
      * Iterate over all queried streams and print them.
      * The queried names are extracted from link 'self'.
      */
+    auto self = val["_links"]["self"].asString();
+    static const std::string begin_str = "channel=";
+    static const std::string sep_str = "%2C";
     
-    auto index = self.find(s_channel);
+    auto index = self.find(begin_str);
     if (index == std::string::npos) {
         std::cerr << "  Invalid response from server\n";
         return;
     }
     
-    auto begin = index + s_channel.size();
-    auto end   = self.find("&", begin);
+    auto begin = index + begin_str.size();
+    
+    auto end = self.find("&", begin);
+    if (end == std::string::npos)
+        end = self.size();
     
     while (begin < end) {
-        index = self.find(s_seperator, begin);
+        index = self.find(sep_str, begin);
         if (index == std::string::npos || index > end)
             index = end;
         
         const auto name = self.substr(begin, index - begin);
-        begin = index + s_seperator.size();
+        begin = index + sep_str.size();
         
-        auto it = received_streams.find(name);
+        auto it = stream_map.find(name);
         
-        if (it != received_streams.end())
+        if (it != stream_map.end())
             print_stream_full(*it->second);
         else
             std::cout << "  Stream [ " << name << " ]: offline\n";
