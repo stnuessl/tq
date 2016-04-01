@@ -116,7 +116,7 @@ bool bookmarks::comp::operator() (const std::string *a,
 
 std::size_t bookmarks::hash::operator() (const std::string *a) const
 {
-    static const std::hash<std::string> hash_func;
+    static const auto hash_func = std::hash<std::string>();
     
     return hash_func(*a);
 }
