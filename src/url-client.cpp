@@ -22,13 +22,19 @@ url_client::url_client()
       _curl(nullptr),
       _curl_slist(nullptr)
 {
-    const static char header[] = "Accept: application/vnd.twitchtv.v3+json";
+    static const char *headers[] = {
+        "Accept: application/vnd.twitchtv.v3+json",
+        "Client-ID: tq",
+        NULL
+    };
     
     curl_global::init();
     
-    _curl_slist = curl_slist_append(_curl_slist, header);
-    if (!_curl_slist)
-        throw std::runtime_error("curl_slist_append() failed.");
+    for (int i = 0; headers[i]; ++i) {
+        _curl_slist = curl_slist_append(_curl_slist, headers[i]);
+        if (!_curl_slist)
+            throw std::runtime_error("curl_slist_append() failed.");
+    }
     
     _curl = curl_easy_init();
     if (!_curl)
