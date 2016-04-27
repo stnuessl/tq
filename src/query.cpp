@@ -105,10 +105,53 @@ query::response query::search_streams(const std::string &name,
     return response(query::TYPE_SEARCH_STREAMS, str);
 }
 
-query::response query::streams(const std::string &name)
+query::response query::streams(const std::string &game,
+                               const std::vector<std::string> *channels,
+                               unsigned int limit)
 {
-    return streams(std::vector<std::string> { name });
+    /* 
+     * twitch.tv changed the behaviour of the normal "search/streams"
+     * API call. Normally this call would always search for the channels
+     * with the most viewers and return them. It does not work this way anymore
+     * and the server just sends random streams (which somehow match the query)
+     * as a response.
+     * This function here is a workaround the get the old behaviour back
+     * which retrieves the streams with the most viewers.
+     */
+    std::string url(BASE_URL "streams?game=");
+    url += game;
+    
+    if (channels) {
+        auto size = channels->size();
+        throw_if_invalid_limit(size);
+        
+        url += "&channel=";
+        
+        for (const auto &x : *channels) {
+            throw_if_invalid_name(x);
+            
+            url += x;
+            url += ',';
+        }
+        
+        /* remove last ',' */
+        url.pop_back();
+    }
+    
+    url += "&limit=";
+    url += std::to_string(limit);
+    url += "&type=suggest";
+    
+    auto str = _client.get_response(url);
+    
+    return response(TYPE_STREAMS, str);
 }
+
+
+// query::response query::streams(const std::string &name)
+// {
+//     return streams(std::vector<std::string>{ name });
+// }
 
 query::response query::streams(const std::vector<std::string> &names)
 {

@@ -52,7 +52,11 @@ public:
     response search_games(const std::string &name, bool live = true);
     response search_streams(const std::string &name,
                             unsigned int limit = default_limit);
-    response streams(const std::string &name);
+    response streams(const std::string &game,
+                     const std::vector<std::string> *channels = nullptr,
+                     unsigned int limit = default_limit);
+    
+//     response streams(const std::string &name);
     response streams(const std::vector<std::string> &names);
     response top(unsigned int limit = default_limit);
     response user(const std::string &name);

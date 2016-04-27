@@ -64,6 +64,9 @@ private:
     void print_stream_short(const Json::Value &stream);
     void print_top_game(const Json::Value &top);
     
+    void print_channel_array(const Json::Value &array);
+    void print_stream_array(const Json::Value &array);
+    
     void print_channel_short_header() const;
     void print_stream_short_header() const;
     void print_top_game_header() const;

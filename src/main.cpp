@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string.h>
 #include <vector>
@@ -41,6 +42,7 @@
 #define DESC_CHECK_B   "Check which bookmarks are streaming."
 #define DESC_DESC      "Print descriptive line headers, if applicable." 
 #define DESC_FEATURED  "Query featured streams."
+#define DESC_GAME      "Specify a game and search streams showcasing it."
 #define DESC_GET_F     "Show all specified bookmarks."
 #define DESC_HELP      "Print this help message."
 #define DESC_JSON      "Pretty print the json strings sent from the server."
@@ -77,12 +79,13 @@ struct args {
     std::vector<std::string> open_vec {};
     std::vector<std::string> open_args_vec {};
     std::vector<std::string> user_vec {};
+    std::vector<std::string> game_vec {};
+    unsigned int limit = query::default_limit;
     bool live = false;
     bool json = false;
     bool verbose = false;
     bool desc = false;
     bool no_section = false;
-    unsigned int limit = query::default_limit;
 };
 
 const std::string home(std::getenv("HOME"));
@@ -112,6 +115,7 @@ int main(int argc, char *argv[])
         ("check-bookmarks,b",                               DESC_CHECK_B)
         ("descriptive,d",                                   DESC_DESC)
         ("featured,f",                                      DESC_FEATURED)
+        ("game,G",            VAL_MUL(&args.game_vec),      DESC_GAME)
         ("get-bookmarks",                                   DESC_GET_F)
         ("help,h",                                          DESC_HELP)
         ("json,j",                                          DESC_JSON)
@@ -187,6 +191,15 @@ int main(int argc, char *argv[])
         
         for (const auto &x : args.s_stream_vec)
             response_vec.push_back(query.search_streams(x, args.limit));
+        
+        for (const auto &x : args.game_vec) {
+            auto &map = conf->game_shortcut_map();
+            
+            auto it = map.find(x);
+            auto &game = (it != map.end()) ? it->second : x;
+            
+            response_vec.push_back(query.streams(game, nullptr, args.limit));
+        }
         
         if (!args.stream_vec.empty())
             response_vec.push_back(query.streams(args.stream_vec));

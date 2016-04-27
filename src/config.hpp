@@ -23,6 +23,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "file.hpp"
 
@@ -44,6 +45,9 @@ public:
     
     const std::string &stream_opener() const;
     const std::vector<std::string> &stream_opener_args() const;
+    
+    const std::unordered_map<std::string, std::string> &
+    game_shortcut_map() const;
 private:
     unsigned int _limit;
     
@@ -59,6 +63,9 @@ private:
     
     std::string _opener;
     std::vector<std::string> _args;
+    std::vector<std::string> _shortcuts;
+    
+    std::unordered_map<std::string, std::string> _shortcut_map;
 };
 
 #endif /* _CONFIG_HPP_ */

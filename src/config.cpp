@@ -42,8 +42,13 @@ config::config(const std::string &path)
       _name_len(response_printer::default_max_name_length),
       _game_len(response_printer::default_max_game_length),
       _opener(),
-      _args()
+      _args(),
+      _shortcuts(),
+      _shortcut_map()
 {
+    _shortcuts.reserve(128);
+    _shortcut_map.reserve(128);
+    
     opt::options_description desc;
     
     desc.add_options()
@@ -57,7 +62,8 @@ config::config(const std::string &path)
         ("printer.name-length",    opt::value(&_name_len))
         ("printer.game-length",    opt::value(&_game_len))
         ("stream.opener",          opt::value(&_opener))
-        ("stream.arg",             opt::value(&_args));
+        ("stream.arg",             opt::value(&_args))
+        ("game-shortcuts.arg",     opt::value(&_shortcuts));
     
     try {
         opt::variables_map conf_var_map;
@@ -72,6 +78,14 @@ config::config(const std::string &path)
             
             o_file.setf(std::ios::boolalpha);
             
+            /*
+             * Since twitch.tv changed the behaviour of "search/streams" to
+             * stronger match on the stream/channel name instead of the game
+             * played we have to use the "/streams" API call. However,
+             * this call needs a exact game name match so here are a few
+             * shortcuts to help with this. The user may uncomment and specify
+             * shortcuts as he wishes.
+             */
             o_file << "[args]\n"
                    << "limit       = " << _limit        << "\n"
                    << "live        = " << _live         << "\n"
@@ -92,8 +106,123 @@ config::config(const std::string &path)
                    << "#opener = /usr/bin/chromium\n"
                    << "#arg = --incognito\n"
                    << "#arg = --start-maximized\n\n"
-                   << "#opener = /usr/bin/firefox\n";
+                   << "#opener = /usr/bin/firefox\n\n"
+                   << "[game-shortcuts]\n"
+                   << "#arg = ?=1979+Revolution\n"
+                   << "#arg = ?=7+Days+to+Die\n"
+                   << "#arg = ?=Alan+Wake\n"
+                   << "#arg = ?=ARK\n"
+                   << "#arg = ?=ArmA+III\n"
+                   << "arg = bf4=Battlefield+4\n"
+                   << "#arg = ?=Black+Desert\n"
+                   << "#arg = ?=Blade+and+Soul\n"
+                   << "#arg = ?=Call+of+Duty:+Black+Ops+III\n"
+                   << "#arg = ?=Chrono+Cross\n"
+                   << "#arg = ?=Clash+Royale\n"
+                   << "arg = csgo=Counter-Strike:+Global+Offensive\n"
+                   << "#arg = ?=Creative\n"
+                   << "#arg = ?=Danganronpa:+Trigger+Happy+Havoc\n"
+                   << "#arg = ?=Dark+Souls+III\n"
+                   << "#arg = ?=Dark+Souls+II:+Scholar+of+the+First+Sin\n"
+                   << "#arg = ?=Dark+Souls\n"
+                   << "#arg = ?=DayZ\n"
+                   << "#arg = ?=Destiny\n"
+                   << "arg = d3=Diablo+III:+Reaper+of+Souls\n"
+                   << "arg = d2=Diablo+II:+Lord+of+Destruction\n"
+                   << "#arg = ?=Don't+Starve+Together\n"
+                   << "arg = dota=Dota+2\n"
+                   << "#arg = ?=EA+Sports+UFC+2\n"
+                   << "#arg = ?=Empire:+Total+War\n"
+                   << "#arg = ?=Enter+the+Gungeon\n"
+                   << "#arg = ?=EVE+Online\n"
+                   << "#arg = ?=Fallout+4\n"
+                   << "#arg = ?=FIFA+16\n"
+                   << "#arg = ?=Final+Fantasy+XIV:+Heavensward\n"
+                   << "#arg = ?=Games+++Demos\n"
+                   << "#arg = ?=Gaming+Talk+Shows\n"
+                   << "#arg = ?=Gears+of+War+4\n"
+                   << "arg = gta4=Grand+Theft+Auto+IV\n"
+                   << "arg = gta5=Grand+Theft+Auto+V\n"
+                   << "#arg = ?=Guild+Wars+2\n"
+                   << "#arg = ?=H1Z1:+King+of+the+Kill\n"
+                   << "#arg = ?=Halo+5:+Guardians\n"
+                   << "#arg = ?=Hearthstone:+Heroes+of+Warcraft\n"
+                   << "#arg = ?=Heroes+of+Newerth\n"
+                   << "arg = hots=Heroes+of+the+Storm\n"
+                   << "#arg = ?=HEX:+Shards+of+Fate\n"
+                   << "#arg = ?=HITMAN\n"
+                   << "#arg = ?=Kerbal+Space+Program\n"
+                   << "#arg = ?=Kingdom+Hearts+χ[chi]\n"
+                   << "#arg = ?=King's+Field\n"
+                   << "arg = lol=League+of+Legends\n"
+                   << "#arg = ?=Madden+NFL+16\n"
+                   << "#arg = ?=Mafia+LIVE!\n"
+                   << "#arg = ?=Magic:+The+Gathering\n"
+                   << "#arg = ?=MapleStory\n"
+                   << "#arg = ?=Minecraft\n"
+                   << "#arg = ?=MLB+The+Show+16\n"
+                   << "#arg = ?=Monopoly\n"
+                   << "#arg = ?=Mortal+Kombat+X\n"
+                   << "arg = mugen=M.U.G.E.N\n"
+                   << "#arg = ?=Music\n"
+                   << "#arg = ?=NBA+2K16\n"
+                   << "#arg = ?=Ni-Oh\n"    
+                   << "#arg = ?=osu!\n"
+                   << "#arg = ?=Paragon\n"
+                   << "arg = poe=Path+of+Exile\n"
+                   << "#arg = ?=Pinball\n"
+                   << "#arg = ?=Pokémon+Omega+Ruby/Alpha+Sapphire\n"
+                   << "#arg = ?=Poker\n"
+                   << "#arg = ?=Quiplash\n"
+                   << "#arg = ?=Ratchet+&+Clank\n"
+                   << "#arg = ?=Retro\n"
+                   << "#arg = ?=RimWorld\n"
+                   << "#arg = ?=Rocket+League\n"
+                   << "#arg = ?=RuneScape\n"
+                   << "#arg = ?=Rust\n"
+                   << "#arg = ?=ShellShock+Live\n"
+                   << "#arg = ?=slither.io\n"
+                   << "#arg = ?=Smite\n"
+                   << "arg = sc2=StarCraft+II\n"
+                   << "#arg = ?=Stardew+Valley\n"
+                   << "#arg = ?=Star+Wars+Battlefront\n"
+                   << "#arg = ?=Street+Fighter+V\n"
+                   << "#arg = ?=Summoners+War:+Sky+Arena\n"
+                   << "#arg = ?=Sunset+Overdrive\n"
+                   << "#arg = ?=Super+Mario+Maker\n"
+                   << "#arg = ?=Super+Smash+Bros.+for+Wii+U\n"
+                   << "#arg = ?=Super+Smash+Bros.+Melee\n"
+                   << "#arg = ?=Team+Fortress+2\n"
+                   << "#arg = ?=The+Binding+of+Isaac:+Afterbirth\n"
+                   << "#arg = ?=The+Culling\n"
+                   << "#arg = ?=The+Elder+Scrolls+Online:+Tamriel+Unlimited\n"
+                   << "#arg = ?=The+Legend+of+Zelda:+Ocarina+of+Time\n"
+                   << "#arg = ?=The+Legend+of+Zelda:+Twilight+Princess+HD\n"
+                   << "#arg = ?=Tibia\n"
+                   << "#arg = ?=Tom+Clancy's+Rainbow+Six:+Siege\n"
+                   << "#arg = ?=Tom+Clancy's+The+Division\n"
+                   << "#arg = ?=Town+of+Salem\n"
+                   << "#arg = ?=Tree+of+Savior\n"
+                   << "#arg = ?=Twitch+Plays\n"
+                   << "arg = wc3=Warcraft+III:+The+Frozen+Throne\n"
+                   << "#arg = ?=World+of+Tanks\n"
+                   << "arg = wow=World+of+Warcraft\n"
+                   << "#arg = ?=World+of+Warships\n\n";
+        } else {
+            for (auto &&x : _shortcuts) {
+                auto i = x.find('=');
+                if (i != std::string::npos) {
+                    auto game = x.substr(i + sizeof(char));
+                    
+                    x.erase(i);
+                    
+                    _shortcut_map[std::move(x)] = std::move(game);
+                }
+            }
+            
+            _shortcuts.clear();
         }
+        
     } catch (std::exception &e) {
         std::cerr << "** Warning: unable to parse config \"" << path << "\" - " 
                   << e.what() << "\n";
@@ -153,4 +282,10 @@ const std::string &config::stream_opener() const
 const std::vector<std::string> &config::stream_opener_args() const
 {
     return _args;
+}
+
+const std::unordered_map<std::string, std::string> &
+config::game_shortcut_map() const
+{
+    return _shortcut_map;
 }

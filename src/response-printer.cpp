@@ -180,81 +180,12 @@ void response_printer::print_featured(const Json::Value& val)
     }
 }
 
-void response_printer::print_channel_short_header() const
-{
-    std::string channel_name("Channel name"), game("Game");
-    
-    trim_string(channel_name, _name_len);
-    trim_string(game, _game_len);
-    
-    std::cout << "  " << std::setw(_name_len) << std::left << channel_name
-              << "  " << std::setw(_game_len) << std::left << game
-              << "  " << "URL\n" 
-              << std::setfill('-') << std::setw(_name_len + _game_len + 40)
-              << "" << std::setfill(' ') << std::endl;
-}
-
-void response_printer::print_stream_short_header() const
-{
-    auto line_len = _int_len + _name_len + _game_len + 40;
-    
-    std::string viewers("Viewers"), stream_name("Stream name"), game("Game");
-    
-    trim_string(viewers, _int_len);
-    trim_string(stream_name, _name_len);
-    trim_string(game, _game_len);
-    
-    std::cout << "  " << std::setw(_int_len)  << std::left << viewers
-              << "  " << std::setw(_name_len) << std::left << stream_name
-              << "  " << std::setw(_game_len) << std::left << game
-              << "  " << "URL\n"
-              << std::setfill('-') << std::setw(line_len)
-              << "" << std::setfill(' ') << std::endl;
-}
-
-void response_printer::print_top_game_header() const
-{
-    std::string viewers("Viewers"), channels("Channels");
-    
-    trim_string(viewers, _int_len);
-    trim_string(channels, _int_len);
-    
-    std::cout << "  " << std::setw(_int_len) << std::left << viewers
-              << "  " << std::setw(_int_len) << std::left << channels
-              << "  " << "Game\n"
-              << std::setfill('-') << std::setw(2 * _int_len + _game_len)
-              << "" << std::setfill(' ') << std::endl;
-}
-
-void response_printer::print_game_header() const
-{
-    std::string popularity("Popularity");
-    
-    trim_string(popularity, _int_len);
-    
-    std::cout << "  " << std::setw(_int_len) << std::left << popularity
-              << "  " << "Game\n"
-              << std::setfill('-') << std::setw(_int_len + _game_len)
-              << "" << std::setfill(' ') << std::endl;
-}
-
 void response_printer::print_search_channels(const Json::Value &val)
 {
     if (_section)
         std::cout << "[ Search Channels ]:\n";
     
-    auto channels = val["channels"];
-    
-    if (_verbose) {
-        for (auto &chan : channels)  
-            print_channel_full(chan);        
-    } else {
-        if (_descriptive)
-            print_channel_short_header();
-        
-        for (auto &chan : channels)
-            print_channel_short(chan);
-    }   
+    print_channel_array(val["channels"]);
 }
 
 void response_printer::print_search_games(const Json::Value &val)
@@ -280,47 +211,48 @@ void response_printer::print_search_streams(const Json::Value &val)
     if (_section)
         std::cout << "[ Search Streams ]:\n";
     
-    auto streams = val["streams"];
-    
-    if (_verbose) {
-        for (auto &s : streams)
-            print_stream_full(s);
-    } else {
-        if (_descriptive)
-            print_stream_short_header();
-        
-        for (auto &s : streams)
-            print_stream_short(s);
-    }
+    print_stream_array(val["streams"]);
 }
 
-void response_printer::print_streams(const Json::Value& val)
+void response_printer::print_streams(const Json::Value &val)
 {
-    auto stream_map = std::unordered_map<std::string, const Json::Value *>();
-
-    /* gather all returned streams */
-    for (auto &x : val["streams"]) {
-        const auto name = x["channel"]["name"].asString();
-        
-        stream_map[name] = &x;
-    }
+    static const std::string begin_str = "channel=";
+    static const std::string sep_str = "%2C";
     
     if (_section)
         std::cout << "[ Streams ]:\n";
     
+    auto streams = val["streams"];
+    
+    auto self = val["_links"]["self"].asString();
+    auto index = self.find(begin_str);
+    if (index == std::string::npos) {
+        /* 
+         * This means we are not interested in specific channels and we can 
+         * print all of them
+         */
+        
+        print_stream_array(streams);
+        return;
+    }
+    
+    /* 
+     * This is the special 'bookmark' query case: The user was interested 
+     * in a few specified streams.
+     */
+    auto stream_map = std::unordered_map<std::string, const Json::Value *>();
+
+    /* gather all returned streams */
+    for (auto &x : streams) {
+        const auto name = x["channel"]["name"].asString();
+        
+        stream_map[name] = &x;
+    }
+
     /* 
      * Iterate over all queried streams and print them.
      * The queried names are extracted from link 'self'.
      */
-    auto self = val["_links"]["self"].asString();
-    static const std::string begin_str = "channel=";
-    static const std::string sep_str = "%2C";
-    
-    auto index = self.find(begin_str);
-    if (index == std::string::npos) {
-        std::cerr << "  Invalid response from server\n";
-        return;
-    }
     
     auto begin = index + begin_str.size();
     
@@ -467,3 +399,90 @@ void response_printer::print_top_game(const Json::Value &top)
               << " / " << std::setw(_int_len) << std::right << channels 
               << "  "  << game  << std::endl;
 }
+
+void response_printer::print_channel_array (const Json::Value &array)
+{
+    if (_verbose) {
+        for (auto &chan : array)  
+            print_channel_full(chan);        
+    } else {
+        if (_descriptive)
+            print_channel_short_header();
+        
+        for (auto &chan : array)
+            print_channel_short(chan);
+    }  
+}
+
+void response_printer::print_stream_array (const Json::Value &array)
+{
+    if (_verbose) {
+        for (auto &s : array)
+            print_stream_full(s);
+    } else {
+        if (_descriptive)
+            print_stream_short_header();
+        
+        for (auto &s : array)
+            print_stream_short(s);
+    }
+}
+
+void response_printer::print_channel_short_header() const
+{
+    std::string channel_name("Channel name"), game("Game");
+    
+    trim_string(channel_name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_name_len) << std::left << channel_name
+              << "  " << std::setw(_game_len) << std::left << game
+              << "  " << "URL\n" 
+              << std::setfill('-') << std::setw(_name_len + _game_len + 40)
+              << "" << std::setfill(' ') << std::endl;
+}
+
+void response_printer::print_stream_short_header() const
+{
+    auto line_len = _int_len + _name_len + _game_len + 40;
+    
+    std::string viewers("Viewers"), stream_name("Stream name"), game("Game");
+    
+    trim_string(viewers, _int_len);
+    trim_string(stream_name, _name_len);
+    trim_string(game, _game_len);
+    
+    std::cout << "  " << std::setw(_int_len)  << std::left << viewers
+              << "  " << std::setw(_name_len) << std::left << stream_name
+              << "  " << std::setw(_game_len) << std::left << game
+              << "  " << "URL\n"
+              << std::setfill('-') << std::setw(line_len)
+              << "" << std::setfill(' ') << std::endl;
+}
+
+void response_printer::print_top_game_header() const
+{
+    std::string viewers("Viewers"), channels("Channels");
+    
+    trim_string(viewers, _int_len);
+    trim_string(channels, _int_len);
+    
+    std::cout << "  " << std::setw(_int_len) << std::left << viewers
+              << "  " << std::setw(_int_len) << std::left << channels
+              << "  " << "Game\n"
+              << std::setfill('-') << std::setw(2 * _int_len + _game_len)
+              << "" << std::setfill(' ') << std::endl;
+}
+
+void response_printer::print_game_header() const
+{
+    std::string popularity("Popularity");
+    
+    trim_string(popularity, _int_len);
+    
+    std::cout << "  " << std::setw(_int_len) << std::left << popularity
+              << "  " << "Game\n"
+              << std::setfill('-') << std::setw(_int_len + _game_len)
+              << "" << std::setfill(' ') << std::endl;
+}
+
