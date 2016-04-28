@@ -25,22 +25,20 @@
 #include <boost/program_options.hpp>
 
 #include "config.hpp"
-#include "query.hpp"
-#include "response-printer.hpp"
 
 namespace opt = boost::program_options;
 
 config::config(const std::string &path)
     : file(path),
-      _limit(query::default_limit),
+      _limit(25),
       _live(false),
       _json(false),
       _verbose(false),
       _descriptive(false),
       _section(true),
-      _int_len(response_printer::default_max_integer_length),
-      _name_len(response_printer::default_max_name_length),
-      _game_len(response_printer::default_max_game_length),
+      _int_len(11),
+      _name_len(20),
+      _game_len(40),
       _opener(),
       _args(),
       _shortcuts(),

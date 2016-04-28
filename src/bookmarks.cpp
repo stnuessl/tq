@@ -22,7 +22,6 @@
 #include <fstream>
 #include <utility>
 
-#include "query.hpp"
 #include "bookmarks.hpp"
 
 static void trim_spaces(std::string &str)
@@ -84,16 +83,9 @@ void bookmarks::remove(const std::vector<std::string> &names)
     write(favs, set);
 }
 
-void bookmarks::check(response_printer &printer, query &query)
+std::vector<std::string> bookmarks::get() const
 {
-    auto favs = read();
-    
-    if (favs.empty())
-        return;
-    
-    auto response = query.streams(favs);
-    
-    printer.print_response(response);
+    return read();
 }
 
 std::ostream &operator<<(std::ostream &o, const bookmarks &bm)

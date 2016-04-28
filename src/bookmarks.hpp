@@ -27,7 +27,6 @@
 #include <ostream>
 
 #include "file.hpp"
-#include "response-printer.hpp"
 
 class bookmarks : public file {
 public:
@@ -37,10 +36,10 @@ public:
     void add(const std::vector<std::string> &names);
     void remove(const std::string &name);
     void remove(const std::vector<std::string> &names);
-    void check(response_printer &printer, query &query);
+    
+    std::vector<std::string> get() const;
     
     friend std::ostream &operator<<(std::ostream &o, const bookmarks &bm);
-    
 private:
     struct comp {
         bool operator() (const std::string *a, const std::string *b) const;

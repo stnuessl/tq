@@ -13,7 +13,7 @@ add_definitions(
 #     -g3
 )
 
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 
 #set(CMAKE_BUILD_TYPE "release")
 #set(CMAKE_BUILD_TYPE "debug")
@@ -47,14 +47,15 @@ include_directories(${Boost_INCLUDE_DIRS})
 # link_directories(${CMAKE_LIBRARY_PATH})
 
 add_executable(tq
+    src/query/query.cpp
+    src/query/url-client.cpp
+    src/adapter/query-adapter.cpp
+    src/adapter/query-results.cpp
     src/bookmarks.cpp
     src/config.cpp
     src/file.cpp
     src/main.cpp
-    src/query.cpp
-    src/response-printer.cpp
     src/stream-opener.cpp
-    src/url-client.cpp
 )
 
 target_link_libraries(tq ${CURL_LIBRARIES})
@@ -62,6 +63,8 @@ target_link_libraries(tq ${JSONCPP_LIBRARIES})
 target_link_libraries(tq ${Boost_LIBRARIES})
 
 install(PROGRAMS ${CMAKE_BINARY_DIR}/tq DESTINATION ${TARGET_INSTALL_DIR})
+install(PROGRAMS bash-completion/tq 
+        DESTINATION /usr/share/bash-completion/completions/)
 
 # uninstall target
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"

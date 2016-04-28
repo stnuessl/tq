@@ -27,7 +27,7 @@ url_client::url_client()
         "Client-ID: tq",
         NULL
     };
-    
+
     curl_global::init();
     
     for (int i = 0; headers[i]; ++i) {
@@ -40,11 +40,14 @@ url_client::url_client()
     if (!_curl)
         throw std::runtime_error("curl_easy_init() failed.");
     
-    curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curl_slist);
-    curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &gather_response);
-    curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_header);
-    curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
+    int err = 0;
+    err |= curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curl_slist);
+    err |= curl_easy_setopt(_curl, CURLOPT_FOLLOWLOCATION, 1L);
+    err |= curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &gather_response);
+    err |= curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_header);
+    err |= curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
+    if (err)
+        throw std::runtime_error("curl_easy_setopt() failed.");
 }
 
 url_client::~url_client()

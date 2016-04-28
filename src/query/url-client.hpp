@@ -28,7 +28,7 @@
 
 class url_client {
 public:
-    explicit url_client();
+    url_client();
     url_client(url_client &client) = delete;
     ~url_client();
     

@@ -1,0 +1,57 @@
+#
+# Copyright (C) 2016  Steffen Nüssle
+# tq - Twitch Query
+#
+# This file is part of tq.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+_tq()
+{
+    local cur prev opts
+    
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="--add-bookmark
+          --channels
+          --check-bookmarks
+          --descriptive
+          --featured
+          --game
+          --get-bookmarks
+          --help
+          --json
+          --limit
+          --live
+          --no-section
+          --open
+          --open-args
+          --remove-bookmarks
+          --search-channels
+          --search-games
+          --search-streams
+          --show-shortcuts
+          --streams
+          --top
+          --user
+          --verbose"
+
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    
+    return 0
+}
+
+complete -F _tq tq
