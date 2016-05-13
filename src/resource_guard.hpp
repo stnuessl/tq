@@ -30,18 +30,26 @@
 template <typename T1, typename T2>
 class resource_guard {
 public:
-    explicit resource_guard(T1 x, std::function<T2> func);
+    resource_guard();
+    resource_guard(T1 x, std::function<T2> func);
+    resource_guard(const resource_guard<T1, T2> &other) = delete;
     resource_guard(resource_guard<T1, T2> &&other);
     ~resource_guard();
     
-    resource_guard(const resource_guard<T1, T2> &other) = delete;
-    
     resource_guard<T1, T2> &
     operator=(const resource_guard<T1, T2> &other) = delete;
+    resource_guard<T1, T2> &operator=(resource_guard<T1, T2> &&other);
 private:
     T1 _x;
     std::function<T2> _func;
 };
+
+template <typename T1, typename T2>
+resource_guard<T1, T2>::resource_guard()
+    : _x(T1()),
+      _func(nullptr)
+{
+}
 
 template <typename T1, typename T2>
 resource_guard<T1, T2>::resource_guard(T1 x, std::function<T2> func)
@@ -69,6 +77,15 @@ resource_guard<T1, T2>::~resource_guard()
      */
     if (_func)
         _func(_x);
+}
+
+template<typename T1, typename T2> resource_guard<T1, T2> &
+resource_guard<T1, T2>::operator=(resource_guard<T1,T2> &&other)
+{
+    std::swap(_x, other._x);
+    std::swap(_func, other._func);
+    
+    return *this;
 }
 
 template <typename T1, typename T2>
