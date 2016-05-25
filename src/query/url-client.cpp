@@ -27,18 +27,24 @@ url_client::url_client()
         "Client-ID: tq",
         NULL
     };
-
+    
     curl_global::init();
     
     for (int i = 0; headers[i]; ++i) {
-        _curl_slist = curl_slist_append(_curl_slist, headers[i]);
-        if (!_curl_slist)
+        auto new_list = curl_slist_append(_curl_slist, headers[i]);
+        if (!new_list) {
+            curl_slist_free_all(_curl_slist);
             throw std::runtime_error("curl_slist_append() failed.");
+        }
+        
+        _curl_slist = new_list;
     }
     
     _curl = curl_easy_init();
-    if (!_curl)
+    if (!_curl) {
+        curl_slist_free_all(_curl_slist);
         throw std::runtime_error("curl_easy_init() failed.");
+    }
     
     int err = 0;
     err |= curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curl_slist);
@@ -46,8 +52,12 @@ url_client::url_client()
     err |= curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &gather_response);
     err |= curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_header);
     err |= curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_response);
-    if (err)
+    if (err) {
+        curl_easy_cleanup(_curl);
+        curl_slist_free_all(_curl_slist);
+        
         throw std::runtime_error("curl_easy_setopt() failed.");
+    }
 }
 
 url_client::~url_client()
