@@ -30,6 +30,7 @@ namespace opt = boost::program_options;
 
 config::config(const std::string &path)
     : file(path),
+      _client_id(),
       _limit(25),
       _live(false),
       _json(false),
@@ -50,6 +51,7 @@ config::config(const std::string &path)
     opt::options_description desc;
     
     desc.add_options()
+        ("args.client-id",         opt::value(&_client_id))
         ("args.limit",             opt::value(&_limit))
         ("args.live",              opt::value(&_live))
         ("args.json",              opt::value(&_json))
@@ -85,6 +87,7 @@ config::config(const std::string &path)
              * shortcuts as he wishes.
              */
             o_file << "[args]\n"
+                   << "client-id   = cdmq41iul8hs3ytq8i82p5s5g6ehyng\n"
                    << "limit       = " << _limit        << "\n"
                    << "live        = " << _live         << "\n"
                    << "section     = " << _section      << "\n"
@@ -166,6 +169,7 @@ config::config(const std::string &path)
                    << "#arg = ?=NBA+2K16\n"
                    << "#arg = ?=Ni-Oh\n"    
                    << "#arg = ?=osu!\n"
+                   << "arg = ow=Overwatch\n"
                    << "#arg = ?=Paragon\n"
                    << "arg = poe=Path+of+Exile\n"
                    << "#arg = ?=Pinball\n"
@@ -225,6 +229,11 @@ config::config(const std::string &path)
         std::cerr << "** Warning: unable to parse config \"" << path << "\" - " 
                   << e.what() << "\n";
     }
+}
+
+const std::string &config::client_id() const
+{
+    return _client_id;
 }
 
 unsigned int config::limit() const

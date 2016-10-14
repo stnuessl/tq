@@ -34,7 +34,8 @@ public:
         STREAM_TYPE_LIVE,
     };
     
-    query();
+    query(const std::string &client_id);
+    query(const char *client_id);
     
     std::string channels(const std::string &name);
     std::string featured_streams(unsigned int limit = 25, 

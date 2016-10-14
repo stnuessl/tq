@@ -31,6 +31,7 @@ class config : public file {
 public:
     config(const std::string &path);
     
+    const std::string &client_id() const;
     unsigned int limit() const;
     
     bool live() const;
@@ -49,6 +50,8 @@ public:
     const std::unordered_map<std::string, std::string> &
     game_shortcut_map() const;
 private:
+    std::string _client_id;
+    
     unsigned int _limit;
     
     bool _live;

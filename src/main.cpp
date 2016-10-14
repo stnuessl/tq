@@ -39,6 +39,8 @@
 #define DESC_ADD_B     "Add a new bookmark."
 #define DESC_CHANNELS  "Retrieve information about a channel."
 #define DESC_CHECK_B   "Check which bookmarks are streaming."
+#define DESC_CLI_ID    "Set the client id which will be used to make requests "\
+                       "to the server."
 #define DESC_DESC      "Print descriptive line headers, if applicable." 
 #define DESC_FEATURED  "Query featured streams."
 #define DESC_GAME      "Search streams showcasing game [arg]. The game name "  \
@@ -95,6 +97,7 @@ int main(int argc, char *argv[])
     std::vector<std::string> search_stream_vector;
     std::vector<std::string> stream_vector;
     std::vector<std::string> user_vector;
+    std::string client_id;
     
     /* 'limit' will get overwritten if it is specified as a program argument */
     unsigned int limit = conf->limit();
@@ -109,6 +112,7 @@ int main(int argc, char *argv[])
         ("add-bookmark,a",    VAL_MUL(&add_vector),             DESC_ADD_B)
         ("channels,C",        VAL_MUL(&channel_vector),         DESC_CHANNELS)
         ("check-bookmarks,b",                                   DESC_CHECK_B)
+        ("client-id,i",       VAL(&client_id),                  DESC_CLI_ID)
         ("descriptive,d",                                       DESC_DESC)
         ("featured,f",                                          DESC_FEATURED)
         ("game,G",            VAL_MUL(&game_vector),            DESC_GAME)
@@ -195,8 +199,10 @@ int main(int argc, char *argv[])
         
         if (argv_map.count("get-bookmarks"))
             std::cout << bookmarks;
+        
+        auto &cid = (!client_id.empty()) ? client_id : conf->client_id();
 
-        query_adapter query_adapter;
+        query_adapter query_adapter(cid);
         auto result_vector = query_adapter::result_vector();
         
         bool live = argv_map.count("live") > 0 || conf->live();

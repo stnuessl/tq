@@ -28,7 +28,8 @@
 
 class url_client {
 public:
-    url_client();
+    url_client(const std::string &client_id);
+    url_client(const char *client_id);
     url_client(url_client &client) = delete;
     ~url_client();
     
@@ -45,6 +46,9 @@ private:
         explicit curl_global();
         ~curl_global();
     };
+    
+    void curl_slist_add(const std::string &info);
+    void curl_slist_add(const char *info);
     
     std::string _header;
     std::string _response;

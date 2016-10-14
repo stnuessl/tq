@@ -72,8 +72,13 @@ static void throw_if_invalid_limit(unsigned int limit)
     }
 }
 
-query::query()
-    : _client(),
+query::query(const std::string &client_id)
+    : query(client_id.c_str())
+{
+}
+
+query::query(const char *client_id)
+    : _client(client_id),
       _uri()
 {
     _uri.reserve(1024);

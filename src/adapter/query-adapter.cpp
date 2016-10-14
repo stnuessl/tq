@@ -20,9 +20,15 @@
 
 #include "query-adapter.hpp"
 
-query_adapter::query_adapter()
+
+query_adapter::query_adapter(const std::string &client_id)
+    : query_adapter(client_id.c_str())
+{
+}
+
+query_adapter::query_adapter(const char *client_id)
     : _json_reader(),
-      _query()
+      _query(client_id)
 {
 }
 

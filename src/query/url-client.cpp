@@ -4,6 +4,8 @@
 
 #include "url-client.hpp"
 
+#define CLIENT_ID "cdmq41iul8hs3ytq8i82p5s5g6ehyng"
+
 static size_t gather_response(char *p, 
                               size_t size, 
                               size_t nmemb, 
@@ -16,30 +18,25 @@ static size_t gather_response(char *p,
     return total;
 }
 
-url_client::url_client()
+url_client::url_client(const std::string &client_id)
+    : url_client(client_id.c_str())
+{
+}
+
+url_client::url_client(const char *client_id)
     : _header(),
       _response(),
       _curl(nullptr),
       _curl_slist(nullptr)
 {
-    static const char *headers[] = {
-        "Accept: application/vnd.twitchtv.v3+json",
-        "Client-ID: tq",
-        NULL
-    };
-    
     curl_global::init();
     
-    for (int i = 0; headers[i]; ++i) {
-        auto new_list = curl_slist_append(_curl_slist, headers[i]);
-        if (!new_list) {
-            curl_slist_free_all(_curl_slist);
-            throw std::runtime_error("curl_slist_append() failed.");
-        }
-        
-        _curl_slist = new_list;
-    }
+    auto client_id_header = std::string("Client-ID: ");
+    client_id_header += client_id;
     
+    curl_slist_add("Accept: application/vnd.twitchtv.v3+json");
+    curl_slist_add(client_id_header);
+
     _curl = curl_easy_init();
     if (!_curl) {
         curl_slist_free_all(_curl_slist);
@@ -107,3 +104,18 @@ void url_client::curl_global::init()
 {
     static curl_global curl_global;
 }
+
+void url_client::curl_slist_add(const std::string &info)
+{
+    curl_slist_add(info.c_str());
+}
+
+void url_client::curl_slist_add(const char *info)
+{
+    auto new_list = curl_slist_append(_curl_slist, info);
+    if (!new_list)
+        throw std::runtime_error("curl_slist_append() failed.");
+    
+    _curl_slist = new_list;
+}
+

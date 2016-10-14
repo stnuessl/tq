@@ -21,6 +21,7 @@
 #ifndef _QUERY_ADAPTER_HPP_
 #define _QUERY_ADAPTER_HPP_
 
+#include <string>
 #include <vector>
 #include <memory>
 
@@ -31,7 +32,8 @@ class query_adapter {
 public:
     typedef std::vector<std::unique_ptr<result>> result_vector;
     
-    query_adapter();
+    query_adapter(const std::string &client_id);
+    query_adapter(const char *client_id);
     
     std::unique_ptr<result> bookmarks(const std::vector<std::string> &channels);
     std::unique_ptr<result> channels(const std::string &name);

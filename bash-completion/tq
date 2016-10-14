@@ -28,6 +28,7 @@ _tq()
     opts="--add-bookmark
           --channels
           --check-bookmarks
+          --client-id
           --descriptive
           --featured
           --game
