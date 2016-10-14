@@ -30,7 +30,7 @@ namespace opt = boost::program_options;
 
 config::config(const std::string &path)
     : file(path),
-      _client_id(),
+      _client_id("cdmq41iul8hs3ytq8i82p5s5g6ehyng"),
       _limit(25),
       _live(false),
       _json(false),
@@ -87,7 +87,7 @@ config::config(const std::string &path)
              * shortcuts as he wishes.
              */
             o_file << "[args]\n"
-                   << "client-id   = cdmq41iul8hs3ytq8i82p5s5g6ehyng\n"
+                   << "client-id   = " << _client_id    << "\n"
                    << "limit       = " << _limit        << "\n"
                    << "live        = " << _live         << "\n"
                    << "section     = " << _section      << "\n"
