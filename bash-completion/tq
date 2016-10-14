@@ -40,7 +40,7 @@ _tq()
           --no-section
           --open
           --open-args
-          --remove-bookmarks
+          --remove-bookmark
           --search-channels
           --search-games
           --search-streams
